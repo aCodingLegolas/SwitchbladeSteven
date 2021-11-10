@@ -8,10 +8,10 @@
 
 
 ; Sister-files
-(require "menu_definitions.rkt")
+
 
 (define menu_background
-  (rectangle 1400 800 "solid" "white"))
+  (rectangle 1700 800 "solid" "skyblue"))
 
 ; The first element of every list should be a string describing the content of the list
 ; Registered uses:
@@ -28,12 +28,20 @@
 
 ; Need to come up with a standard format of list element ordering
 
+; Handy-dandy functions:
+
+(define (make_s size style color x y)
+  (list "square" (square size style color) x y))
+
+(define (make_r width height style color x y)
+  (list "rectangle" (rectangle width height style color) x y))
 
 
 ; Variable Definitions and Constants
 
 ; The back-button
-
+(define back_button
+  (list "square" (square 20 "solid" "red") 10 10))
 
 ; Here are the images and locations for the world-buttons
 (define f_world
@@ -90,6 +98,15 @@
 (define j_level_list
   (list "levels" j_l1 j_l2 j_l3 j_l4 j_l5 back_button))
 
+; Worlds yeet
+
+(define f_1
+  (list
+   "play"
+   (make_s 30 "solid" "red" 500 580)
+   (make_r 5000 20 "solid" "black" 1000 600)))
+
+
 ; Game-Changers:
 
 ; List -> List or Boolean
@@ -126,6 +143,7 @@
     [(equal? "levels" (list-ref a_list 0))
      (cond
        [(collision? x y (list-ref a_list 6)) (back a_list)]
+       [(collision? x y (list-ref a_list 1)) f_1]
        [else a_list])]
     [else a_list]))
 

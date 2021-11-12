@@ -154,7 +154,7 @@
 (define (render_buttons aList im)
   (if (list? aList)
   (place-image
-   (list-ref aList 1) 
+   (list-ref aList 1)
    (list-ref aList 2)
    (list-ref aList 3) im)
   (square 60 "solid" "green"))) ; error case

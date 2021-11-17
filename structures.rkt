@@ -27,7 +27,8 @@
 
 
 ; An Objects is a List-of-Objects
-(define-struct object [attributes])                   ;need to decide what the attributes are
+
+(define-struct object [x y image lethal])                   ;need to decide what the attributes are
 ; An Object is a structure:
 ;     (make-object attributes)
 ; interpretation: (make-object attributes) specifies the attributes of the object

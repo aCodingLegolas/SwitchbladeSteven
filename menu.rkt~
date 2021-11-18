@@ -11,7 +11,7 @@
 
 
 (define menu_background
-  (rectangle 1400 800 "solid" "white"))
+  (rectangle 1700 800 "solid" "skyblue"))
 
 ; The first element of every list should be a string describing the content of the list
 ; Registered uses:
@@ -28,6 +28,13 @@
 
 ; Need to come up with a standard format of list element ordering
 
+; Handy-dandy functions:
+
+(define (make_s size style color x y)
+  (list "square" (square size style color) x y))
+
+(define (make_r width height style color x y)
+  (list "rectangle" (rectangle width height style color) x y))
 
 
 ; Variable Definitions and Constants
@@ -96,10 +103,9 @@
 (define f_1
   (list
    "play"
-   (list
-    "square" (circle 10 "solid" "blue") 300 400)
-   (list
-    "square" (square 30 "solid" "yellow") 100 700)))
+   (make_s 30 "solid" "red" 500 580)
+   (make_r 5000 20 "solid" "black" 1000 600)))
+
 
 ; Game-Changers:
 
@@ -148,7 +154,7 @@
 (define (render_buttons aList im)
   (if (list? aList)
   (place-image
-   (list-ref aList 1)
+   (list-ref aList 1) 
    (list-ref aList 2)
    (list-ref aList 3) im)
   (square 60 "solid" "green"))) ; error case

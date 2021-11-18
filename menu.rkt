@@ -7,7 +7,8 @@
 (require racket/include)
 
 
-; Sister-files
+; IMPORTANT:
+;  This file is to be used as reference for the new main.rkt file: this file uses a list for the gs
 
 
 (define menu_background

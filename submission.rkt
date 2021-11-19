@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname main) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname submission) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ; Switchblade Steven
 ; created by JB, Friedrich, and June
 
@@ -138,50 +138,52 @@
 (define (tock gs)
   (...gs...))
 
+; Gamestate -> Boolean
+; Checks for collision between the character and any given object in the world
+; (define (collision char object) char)
+; given no-collision, expect #false
+; given collision, expect #true
+(define (collision char object)
+  (...char...))
 
-; Constants:
-(define MENU_BACKGROUND
-  (rectangle 1700 800 "solid" "skyblue"))
-(define CHARACTER_X 200)
+;adjust-char
+; Gamestate -> Gamestate
+; Moves the character ontop of the "floor" if the amount of collision is less than the tolerated amount.
+; (define (adjust-char gs char) gs char)
+; given acceptable collision, expect character to be popped forward up onto the "floor"
+; given unacceptable collision, expect character to be prevented from moving forward
+(define (adjust-char gs char)
+  (...gs...char...))
 
-; The structures used:
-(define-struct ugs [menu world character level objects])
-(define-struct character [y temp image])
-(define-struct object [x y image lethal])
+; Gamestate -> Gamestate
+; Kills the character if the gamestate is such that the character deserves a slow and painful death
+; given no-death-gamestate, return normal game-state
+; given death-gamestate, return end-game-state
+(define (kill-char char gs object)
+  (...char...))
 
-; Lists of objects that represents levels, both in both menu and play-state:
-(define m_menu
-  (list
-   (make-object 300 400 (square 80 "solid" "red") #false)
-   (make-object 600 100 (square 50 "solid" "red") #false)
-   (make-object 200 200 (square 20 "solid" "red") #false)))
-
-; Renders an object-struct:
-(define (render_object ob im)
-  (place-image (object-image ob) (object-x ob) (object-y ob) im))
-
-; Renders the list of objects on the background-image:
-(define (render_all_objects loo)
-  (cond
-    [(empty? loo) MENU_BACKGROUND]
-    [else (render_object (first loo) (render_all_objects (rest loo)))]))
-
-
-
+; Gamestate -> Image
 ; Renders the entire game-state:
+; given game-state, expect image
 (define (master_render game-struct)
   (place-image
    (character-image (ugs-character game-struct))
    CHARACTER_X
    (character-y (ugs-character game-struct))
    (render_all_objects (ugs-objects game-struct))))
-; Main, using big-bang:
-(define (main ugs)
-  (big-bang ugs
-    [to-draw master_render]))
 
-; The start-state:
-(define start_state
-  (make-ugs #true 0 (make-character 300 1 (circle 30 "solid" "green")) 0 m_menu))
 
-(main start_state)
+; Character Gamestate -> Gamestate
+; accepts a keystroke (Character) and calls an assigned function
+; given " " and character-y 25, expect character-y 35
+; given ugs-objects-x 150, expect ugs-objects-x 148
+(define (on_key a_key gs)
+ (...gs...))
+
+
+; Gamestate -> Boolean
+; evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
+; given object-x-300 and character-x 300, expect #t
+; given object-x-300 and character-x 200, expect #f
+(define (end_world)
+ (...Boolean...))

@@ -7,7 +7,8 @@
 (require racket/include)
 
 
-; Sister-files
+; IMPORTANT:
+;  This file is to be used as reference for the new main.rkt file: this file uses a list for the gs
 
 
 (define menu_background
@@ -164,7 +165,7 @@
   (cond
     [(empty? lol) menu_background]
     [else (render_buttons (first (filter list? lol)) (render_better (rest (filter list? lol))))]))
-                   
+
 
 ; List -> String
 (define (stop ms)

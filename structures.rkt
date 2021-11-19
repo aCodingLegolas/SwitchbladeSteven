@@ -18,8 +18,8 @@
 
 (define-struct character [y temp])
 ; A Character is a structure:
-;    (make-character attributes)                          ;need to decide what the attributes are
-; interpretation: (make-character attributes) specificies the attributes of the character
+;    (make-character y temp)                          ;need to decide what the attributes are
+; interpretation: (make-character y temp) specificies the attributes of the character
 
 
 ; A Level is a Number:
@@ -28,7 +28,7 @@
 
 ; An Objects is a List-of-Objects
 
-(define-struct object [x y image lethal])                   ;need to decide what the attributes are
+(define-struct object [x y image lethal])
 ; An Object is a structure:
 ;     (make-object attributes)
 ; interpretation: (make-object attributes) specifies the attributes of the object

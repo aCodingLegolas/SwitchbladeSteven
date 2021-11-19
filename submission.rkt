@@ -1,7 +1,7 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname submission) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-; Switchblade Steven
+; Switchblade Stephen
 ; created by JB, Friedrich, and June
 
 ;Project requirements:
@@ -13,6 +13,7 @@
 (require 2htdp/image)
 (require 2htdp/universe)
 (require 2htdp/abstraction)
+
 
 
 ;STRUCTURES
@@ -32,10 +33,10 @@
 ; interpretation: the world determines the theme and challenges of the game
 
 
-(define-struct character [y temp img])
+(define-struct character [y temp image])
 ; A Character is a structure:
-;    (make-character y temp img)                          
-; interpretation: (make-character y temp img) specificies the y position, the
+;    (make-character y temp image)                          
+; interpretation: (make-character y temp image) specificies the y position, the
 ; temperature of the character in the ice world, and the associated image
 
 
@@ -60,6 +61,22 @@
 ; the object, its associated graphic, and its velocity
 
 
+;TEST GAME
+
+(define BACKGROUND (empty-scene 200 200))
+(define HEIGHT (image-height BACKGROUND))
+(define CHARACTER_X (/ (image-width BACKGROUND) 2))
+(define lavaCharShape (circle 10 "solid" "orange"))
+(define lavaChar (make-character 20 #false lavaCharShape))
+(define objImg (circle 10 "solid" "green"))
+(define objImg2 (square 10 "solid" "green"))
+(define object1 (make-object 50 50 objImg #false))
+(define object2 (make-object 150 150 objImg2 #false))
+(define testState (make-ugs #false 1 lavaChar 1 (list object1 object2)))
+
+
+
+
 ;FUNCTIONS
 
 ;Gamestate -> Boolean
@@ -68,7 +85,7 @@
 ; given ugs..., expect #true
 ; given ugs..., expect #false
 (define (complete-level gs)
-  (...gs...bool...))
+  gs)
 
 ; Gamestate, Boolean -> Gamestate
 ; increases the level of the gamestate after a player completes a level
@@ -78,7 +95,7 @@
 ; given ugs-level 5, #true, expect ugs-level 5
 ; given ugs-level 1, #false, expect ugs-level 1
 (define (level-up gs bool)
-  (...gs...))
+  gs)
 
 
 ; Mouse-event,Gamestate -> Gamestate
@@ -88,18 +105,21 @@
 ; given x+200, y=150, "button-down", expect (ugs-world 2)
 ; given x=250, y=150, "button-down", expect (ugs-world 3)
 (define (choose-world gs x y me)
-  (...gs...))
+  gs)
 
-
-; Character -> Character
+;(define testState (make-ugs #false 1 lavaChar 1 (list object1 object2)))
+; Gamestate -> Gamestate
 ; increases the character's y coordinate by 2 pixels
 ; (define (jump char) char)
 ; given (character-y 25), expect (character-y 27)
 ; given (character-yy HEIGHT), expect (character-y HEIGHT)
-(define (jump char)
-  (if (= (character-y char) HEIGHT)
-      char
-      (make-character (character-temp char)(+ (character-y char) 2))))
+(define (jump gs)
+  (if (= (character-y (ugs-character gs)) HEIGHT)
+      (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs))
+      (make-ugs (ugs-menu gs) (ugs-world gs)
+                (make-character (- (character-y (ugs-character gs)) 2) (character-temp (ugs-character gs)) (character-image (ugs-character gs)))
+                (ugs-level gs) (ugs-objects gs))
+      ))
 
 
 ; Gamestate -> Gamestate
@@ -108,7 +128,7 @@
 ; given ugs-objects-x 150, expect ugs-objects-x 148
 ; given ugs-objects-x 320, expect ugs-objects-x 318
 (define (forward gs)
-  (...gs...))
+  gs)
 
 
 ; Gamestate -> Gamestate
@@ -117,7 +137,7 @@
 ; given ugs-objects-x 150, expect ugs-objects-x 152
 ; given ugs-objects-x 320, expect ugs-objects-x 322
 (define (rewind gs)
-  (...gs...))
+  gs)
 
 
 ; Character -> Character
@@ -126,7 +146,7 @@
 ; given char-img 1, expect char-img 2
 ; given char-img 4, expect char-img 1
 (define (move-legs char)
-  (...char...))
+  char)
 
 
 ; Gamestate -> Gamestate
@@ -136,7 +156,7 @@
 ; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
 ; (define (tock gs) gs)
 (define (tock gs)
-  (...gs...))
+  gs)
 
 ; Gamestate -> Boolean
 ; Checks for collision between the character and any given object in the world
@@ -144,7 +164,7 @@
 ; given no-collision, expect #false
 ; given collision, expect #true
 (define (collision char object)
-  (...char...))
+  char)
 
 ;adjust-char
 ; Gamestate -> Gamestate
@@ -153,37 +173,68 @@
 ; given acceptable collision, expect character to be popped forward up onto the "floor"
 ; given unacceptable collision, expect character to be prevented from moving forward
 (define (adjust-char gs char)
-  (...gs...char...))
+  gs)
 
 ; Gamestate -> Gamestate
 ; Kills the character if the gamestate is such that the character deserves a slow and painful death
 ; given no-death-gamestate, return normal game-state
 ; given death-gamestate, return end-game-state
 (define (kill-char char gs object)
-  (...char...))
-
-; Gamestate -> Image
-; Renders the entire game-state:
-; given game-state, expect image
-(define (master_render game-struct)
-  (place-image
-   (character-image (ugs-character game-struct))
-   CHARACTER_X
-   (character-y (ugs-character game-struct))
-   (render_all_objects (ugs-objects game-struct))))
+  gs)
 
 
 ; Character Gamestate -> Gamestate
 ; accepts a keystroke (Character) and calls an assigned function
 ; given " " and character-y 25, expect character-y 35
 ; given ugs-objects-x 150, expect ugs-objects-x 148
-(define (on_key a_key gs)
- (...gs...))
+(define (onKey gs key)
+ (cond
+   [(key=? key " ") (jump gs)]
+   [(key=? key "left") (rewind gs)]
+   [(key=? key "right") (forward gs)]
+   [else gs]))
 
 
 ; Gamestate -> Boolean
 ; evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
 ; given object-x-300 and character-x 300, expect #t
 ; given object-x-300 and character-x 200, expect #f
-(define (end_world)
- (...Boolean...))
+(define (endWorld gs)
+ #false)
+
+; List-of-Objects, Image -> Image
+; places all the objects in a list on the world background
+; (define (renderAllObjects obj image) image)
+; given (list obj1 obj2) with x,y of (110,110) (78, 60), expect image with objects at (110,110) (78,60)
+; given '(), expect image
+(define (renderAllObjects obj image)
+  (cond
+    [(empty? obj) image]
+    [else (place-image (object-image (first obj))
+               (object-x (first obj)) (object-y (first obj))
+               (renderAllObjects (rest obj) image))]))
+
+
+; Gamestate -> Image
+; Renders the entire game-state:
+; given game-state, expect image
+(define (masterRender gs)
+  (place-image
+   (character-image (ugs-character gs))
+         CHARACTER_X
+         (character-y (ugs-character gs))
+             (renderAllObjects (ugs-objects gs) BACKGROUND)))
+
+
+
+
+; Main Big Bang function
+(define (main gs)
+  (big-bang gs
+    [on-tick tock]
+    [on-key onKey]
+    [stop-when endWorld]
+    [to-draw masterRender]))
+
+; test the program
+(main testState)

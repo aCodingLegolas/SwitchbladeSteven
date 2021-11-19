@@ -23,7 +23,7 @@
 
 (define-struct character [y temp img])
 ; A Character is a structure:
-;    (make-character y temp img)                          
+;    (make-character y temp img)
 ; interpretation: (make-character y temp img) specificies the y position, the
 ; temperature of the character in the ice world, and the associated image
 
@@ -114,8 +114,23 @@
 ;kill-char
 ;tock
 ;master-render
-;on-key
-;end-world
+
+
+; Character Gamestate -> Gamestate
+; accepts a keystroke (Character) and calls an assigned function
+; given " " and character-y 25, expect character-y 35
+; given ugs-objects-x 150, expect ugs-objects-x 148
+(define (on_key a_key gs)
+  (...gs...))
+
+
+; Gamestate -> Boolean
+; evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
+; given object-x-300 and character-x 300, expect #t
+; given object-x-300 and character-x 200, expect #f
+(define (end_world)
+  (...Boolean...))
+
 ;on-mouse
 ;stop-when
 

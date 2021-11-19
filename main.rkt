@@ -4,6 +4,12 @@
 ; Switchblade Steven
 ; created by JB, Friedrich, and June
 
+;Project requirements:
+;   1. Same as last submission
+;   2. See below
+;   3. Same as last submission
+
+
 ;STRUCTURES
 
 (define-struct ugs [menu world character level objects])
@@ -32,7 +38,7 @@
 ; interpretation: the Level is the current level that the player has advanced to
 
 
-; An Objects is a List-of-Objects
+; An Objects is a List-of-Objects-and-Enemies
 
 
 (define-struct object [x y image lethal])
@@ -42,6 +48,11 @@
 ; the object, it's associated graphic, and whether or not the object is lethal to
 ; the character
 
+(define-struct enemy [x y image vel])
+; An Enemy is a structure:
+;     (make-enemy x y image vel)
+; interpretation: (make-enemy x y image vel) specifies the x & y coordinates of
+; the object, its associated graphic, and its velocity
 
 
 ;FUNCTIONS
@@ -65,8 +76,14 @@
   (...gs...))
 
 
-; Gamestate -> Gamestate
-; choose-world
+; Mouse-event,Gamestate -> Gamestate
+; selects the world theme and character and returns the appropiate gamestate
+; (define (choose-world gs x y me) gs)
+; given x=150,y=150, "button-down", expect (ugs-world 1)
+; given x+200, y=150, "button-down", expect (ugs-world 2)
+; given x=250, y=150, "button-down", expect (ugs-world 3)
+(define (choose-world gs x y me)
+  (...gs...))
 
 
 ; Character -> Character
@@ -108,15 +125,15 @@
 
 
 ; Gamestate -> Gamestate
+; moves the world and its objects and its enemies
+; according to their velocity
+; given ugs-object-x 230, expect ugs-object-x 228
+; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
+; (define (tock gs) gs)
+(define (tock gs)
+  (...gs...))
 
-;collision
-;adjust-char
-;kill-char
-;tock
-;master-render
-;on-key
-;end-world
-;on-mouse
+
 ;stop-when
 
 ; The required packages:
@@ -150,6 +167,8 @@
   (cond
     [(empty? loo) MENU_BACKGROUND]
     [else (render_object (first loo) (render_all_objects (rest loo)))]))
+
+
 
 ; Renders the entire game-state:
 (define (master_render game-struct)

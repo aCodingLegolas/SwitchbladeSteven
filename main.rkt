@@ -107,11 +107,30 @@
   (...char...))
 
 
-; Gamestate -> Gamestate
+; Gamestate -> Boolean
+; Checks for collision between the character and any given object in the world
+; (define (collision char object) char)
+; given no-collision, expect #false
+; given collision, expect #true
+(define (collision char object)
+  (...char...))
 
-;collision
 ;adjust-char
-;kill-char
+; Gamestate -> Gamestate
+; Moves the character ontop of the "floor" if the amount of collision is less than the tolerated amount.
+; (define (adjust-char gs char) gs char)
+; given acceptable collision, expect character to be popped forward up onto the "floor"
+; given unacceptable collision, expect character to be prevented from moving forward
+(define (adjust-char gs char)
+  (...gs...char...))
+
+; Gamestate -> Gamestate
+; Kills the character if the gamestate is such that the character deserves a slow and painful death
+; given no-death-gamestate, return normal game-state
+; given death-gamestate, return end-game-state
+(define (kill-char char gs object)
+  (...char...))
+
 ;tock
 ;master-render
 
@@ -144,11 +163,6 @@
   (rectangle 1700 800 "solid" "skyblue"))
 (define CHARACTER_X 200)
 
-; The structures used:
-(define-struct ugs [menu world character level objects])
-(define-struct character [y temp image])
-(define-struct object [x y image lethal])
-
 ; Lists of objects that represents levels, both in both menu and play-state:
 (define m_menu
   (list
@@ -173,6 +187,7 @@
    CHARACTER_X
    (character-y (ugs-character game-struct))
    (render_all_objects (ugs-objects game-struct))))
+
 ; Main, using big-bang:
 (define (main ugs)
   (big-bang ugs

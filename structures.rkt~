@@ -16,7 +16,7 @@
 ; interpretation: the world determines the theme and challenges of the game
 
 
-(define-struct character [y temp image])
+(define-struct character [y temp])
 ; A Character is a structure:
 ;    (make-character attributes)                          ;need to decide what the attributes are
 ; interpretation: (make-character attributes) specificies the attributes of the character

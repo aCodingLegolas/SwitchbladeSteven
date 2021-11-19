@@ -24,12 +24,13 @@
 (require 2htdp/abstraction)
 
 ; Constants:
-(define menu_background
+(define MENU_BACKGROUND
   (rectangle 1700 800 "solid" "skyblue"))
+(define CHARACTER_X 200)
 
 ; The structures used:
 (define-struct ugs [menu world character level objects])
-(define-struct character [y temp])
+(define-struct character [y temp image])
 (define-struct object [x y image lethal])
 
 ; Lists of objects that represents levels, both in both menu and play-state:
@@ -43,17 +44,26 @@
 (define (render_object ob im)
   (place-image (object-image ob) (object-x ob) (object-y ob) im))
 
-; Renders the list of objects
+; Renders the list of objects on the background-image:
 (define (render_all_objects loo)
   (cond
-    [(empty? loo) menu_background]
+    [(empty? loo) MENU_BACKGROUND]
     [else (render_object (first loo) (render_all_objects (rest loo)))]))
 
-
-
+; Renders the entire game-state:
+(define (master_render game-struct)
+  (place-image
+   (character-image (ugs-character game-struct))
+   CHARACTER_X
+   (character-y (ugs-character game-struct))
+   (render_all_objects (ugs-objects game-struct))))
+; Main, using big-bang:
+(define (main ugs)
+  (big-bang ugs
+    [to-draw master_render]))
 
 ; The start-state:
 (define start_state
-  (make-ugs #true 0 (make-character 300 1) 0 m_menu))
+  (make-ugs #true 0 (make-character 300 1 (circle 30 "solid" "green")) 0 m_menu))
 
-(render_all_objects (ugs-objects start_state))
+(main start_state)

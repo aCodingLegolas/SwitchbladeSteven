@@ -165,7 +165,7 @@
   (cond
     [(empty? lol) menu_background]
     [else (render_buttons (first (filter list? lol)) (render_better (rest (filter list? lol))))]))
-                   
+
 
 ; List -> String
 (define (stop ms)

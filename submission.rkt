@@ -67,17 +67,26 @@
 (define HEIGHT (image-height BACKGROUND))
 (define CHARACTER_X (/ (image-width BACKGROUND) 2))
 (define lavaCharShape (circle 10 "solid" "orange"))
-(define lavaChar (make-character 20 #false lavaCharShape))
+(define lavaChar (make-character 120 #false lavaCharShape))
 (define objImg (circle 10 "solid" "green"))
 (define objImg2 (square 10 "solid" "green"))
 (define object1 (make-object 50 50 objImg #false))
 (define object2 (make-object 150 150 objImg2 #false))
-(define testState (make-ugs #false 1 lavaChar 1 (list object1 object2)))
+(define enImg1 (circle 12 "solid" "black"))
+(define enemy1 (make-enemy 120 20 enImg1 5))
+(define testState (make-ugs #false 1 lavaChar 1 (list object1 object2 enemy1)))
 
 
 
 
 ;FUNCTIONS
+
+; helper function to make a gamestate
+(define (makeGS gs thing)
+  (cond
+    [(character? thing) (make-ugs (ugs-menu gs) (ugs-world gs) thing (ugs-level gs) (ugs-objects gs))]
+    [else gs]))
+
 
 ;Gamestate -> Boolean
 ; determines when the character has reached the end of the level
@@ -115,11 +124,12 @@
 ; given (character-yy HEIGHT), expect (character-y HEIGHT)
 (define (jump gs)
   (if (= (character-y (ugs-character gs)) HEIGHT)
-      (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs))
-      (make-ugs (ugs-menu gs) (ugs-world gs)
-                (make-character (- (character-y (ugs-character gs)) 2) (character-temp (ugs-character gs)) (character-image (ugs-character gs)))
-                (ugs-level gs) (ugs-objects gs))
-      ))
+      gs
+      (makeGS gs
+         (make-character
+          (- (character-y (ugs-character gs)) 2)
+          (character-temp (ugs-character gs))
+          (character-image (ugs-character gs))))))
 
 
 ; Gamestate -> Gamestate
@@ -149,22 +159,13 @@
   char)
 
 
-; Gamestate -> Gamestate
-; moves the world and its objects and its enemies
-; according to their velocity
-; given ugs-object-x 230, expect ugs-object-x 228
-; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
-; (define (tock gs) gs)
-(define (tock gs)
-  gs)
-
 ; Gamestate -> Boolean
 ; Checks for collision between the character and any given object in the world
 ; (define (collision char object) char)
 ; given no-collision, expect #false
 ; given collision, expect #true
 (define (collision char object)
-  char)
+  #false)
 
 ;adjust-char
 ; Gamestate -> Gamestate
@@ -179,7 +180,7 @@
 ; Kills the character if the gamestate is such that the character deserves a slow and painful death
 ; given no-death-gamestate, return normal game-state
 ; given death-gamestate, return end-game-state
-(define (kill-char char gs object)
+(define (killChar gs)
   gs)
 
 
@@ -200,7 +201,44 @@
 ; given object-x-300 and character-x 300, expect #t
 ; given object-x-300 and character-x 200, expect #f
 (define (endWorld gs)
- #false)
+ (cond
+   [(collision (ugs-character gs) (ugs-objects gs)) #true]
+   [else #false]))
+
+
+; Gamestate -> Gamestate
+; moves the world and its objects and its enemies
+; given ugs-object-x 230, expect ugs-object-x 228
+; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
+; (define (tock gs) gs)
+(define (tock gs)
+  (cond
+    [(empty? (ugs-objects gs)) '()]
+    [else (make-ugs
+            (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+            (tockHelper (ugs-objects gs)))]))
+
+
+; List-of-Objects -> List-of-Objects
+; decreases the x coordinate of each object in the world
+; given object-x 3, expect object-x 1
+; given object-x 198, expect object-x 196
+(define (tockHelper loo)
+  (cond
+    [(empty? loo) '()]
+    [else (cons (cond
+                  [(object? (first loo)) (make-object
+                                             (- (object-x (first loo)) 2)
+                                           (object-y (first loo))
+                                           (object-image (first loo))
+                                           (object-lethal (first loo)))]
+                  [(enemy? (first loo)) (make-enemy
+                                             (- (enemy-x (first loo)) (enemy-vel (first loo)))
+                                           (enemy-y (first loo))
+                                           (enemy-image (first loo))
+                                           (enemy-vel (first loo)))])
+                (tockHelper (rest loo)))]))
+
 
 ; List-of-Objects, Image -> Image
 ; places all the objects in a list on the world background
@@ -210,9 +248,13 @@
 (define (renderAllObjects obj image)
   (cond
     [(empty? obj) image]
-    [else (place-image (object-image (first obj))
+    [(object? (first obj)) (place-image (object-image (first obj))
                (object-x (first obj)) (object-y (first obj))
-               (renderAllObjects (rest obj) image))]))
+               (renderAllObjects (rest obj) image))]
+    [(enemy? (first obj)) (place-image (enemy-image (first obj))
+               (enemy-x (first obj)) (enemy-y (first obj))
+               (renderAllObjects (rest obj) image))]
+    [else image]))
 
 
 ; Gamestate -> Image
@@ -231,9 +273,9 @@
 ; Main Big Bang function
 (define (main gs)
   (big-bang gs
-    [on-tick tock]
+    [on-tick tock .1]
     [on-key onKey]
-    [stop-when endWorld]
+    [stop-when endWorld killChar]
     [to-draw masterRender]))
 
 ; test the program

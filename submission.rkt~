@@ -18,9 +18,9 @@
 
 ;STRUCTURES
 
-(define-struct ugs [menu world character level objects keyboard])
+(define-struct ugs [menu world character level objects])
 ; A ugs is a structure:
-;    (make-ugs menu world character level objects keyboard)
+;    (make-ugs menu world character level objects)
 ; interpretation: (make-ugs menu world character level objects)
 ; represents the complete state of a space invader game
 
@@ -60,12 +60,6 @@
 ; interpretation: (make-enemy x y image vel) specifies the x & y coordinates of
 ; the object, its associated graphic, and its velocity
 
-(define-struct keyboard [space left right escape])
-; A keyboard is a structure:
-;     (make-keyboard space left right escape)
-; interpretation: (make-keyboard space left right escape) specifies which keys are currently pressed.
-; this information changes how the tock and render functions work.
-
 
 ;TEST GAME
 
@@ -81,13 +75,7 @@
 (define object2 (make-object 150 150 objImg2 #false))
 (define enImg1 (circle 12 "solid" "black"))
 (define enemy1 (make-enemy 320 20 enImg1 5))
-(define testState (make-ugs
-                   #false
-                   1
-                   lavaChar
-                   1
-                   (list object1 object2 enemy1)
-                   (make-keyboard #f #f #f #f)))
+(define testState (make-ugs #false 1 lavaChar 1 (list object1 object2 enemy1)))
 
 
 
@@ -102,7 +90,7 @@
                          (ugs-world gs)
                          thing
                          (ugs-level gs)
-                         (ugs-objects gs) 0)]
+                         (ugs-objects gs))]
     [else gs]))
 
 
@@ -160,7 +148,7 @@
     [(empty? (ugs-objects gs)) '()]
     [else (make-ugs
             (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-            (forwardHelper (ugs-objects gs)) 0)]))
+            (forwardHelper (ugs-objects gs)))]))
 
 
 ; List-of-Objects -> List-of-Objects

@@ -65,6 +65,7 @@
 
 (define BACKGROUND (empty-scene 200 200))
 (define HEIGHT (image-height BACKGROUND))
+(define WIDTH (image-height BACKGROUND))
 (define CHARACTER_X (/ (image-width BACKGROUND) 2))
 (define lavaCharShape (circle 10 "solid" "orange"))
 (define lavaChar (make-character 120 #false lavaCharShape))
@@ -73,7 +74,7 @@
 (define object1 (make-object 50 50 objImg #false))
 (define object2 (make-object 150 150 objImg2 #false))
 (define enImg1 (circle 12 "solid" "black"))
-(define enemy1 (make-enemy 120 20 enImg1 5))
+(define enemy1 (make-enemy 320 20 enImg1 5))
 (define testState (make-ugs #false 1 lavaChar 1 (list object1 object2 enemy1)))
 
 
@@ -84,7 +85,12 @@
 ; helper function to make a gamestate
 (define (makeGS gs thing)
   (cond
-    [(character? thing) (make-ugs (ugs-menu gs) (ugs-world gs) thing (ugs-level gs) (ugs-objects gs))]
+    [(character? thing) (make-ugs
+                         (ugs-menu gs)
+                         (ugs-world gs)
+                         thing
+                         (ugs-level gs)
+                         (ugs-objects gs))]
     [else gs]))
 
 
@@ -138,9 +144,41 @@
 ; given ugs-objects-x 150, expect ugs-objects-x 148
 ; given ugs-objects-x 320, expect ugs-objects-x 318
 (define (forward gs)
-  gs)
+  (cond
+    [(empty? (ugs-objects gs)) '()]
+    [else (make-ugs
+            (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+            (forwardHelper (ugs-objects gs)))]))
 
 
+; List-of-Objects -> List-of-Objects
+; decreases the x coordinate of each object in the world
+; given object-x 3, expect object-x 1
+; given object-x 198, expect object-x 196
+(define (forwardHelper loo)
+  (cond
+    [(empty? loo) '()]
+    [else (cons (cond
+                  [(object? (first loo)) (make-object
+                                             (- (object-x (first loo)) 2)
+                                           (object-y (first loo))
+                                           (object-image (first loo))
+                                           (object-lethal (first loo)))]
+                  [(enemy? (first loo)) (cond
+                                          [(checkEnemyX (first loo)) (first loo)]
+                                          [else (make-enemy
+                                             (- (enemy-x (first loo)) 2)
+                                           (enemy-y (first loo))
+                                           (enemy-image (first loo))
+                                           (enemy-vel (first loo)))])
+                                          ])
+                (forwardHelper (rest loo)))]))
+
+(define (checkEnemyX en)
+  (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
+
+
+      
 ; Gamestate -> Gamestate
 ; moves the world backwards
 ; (define (rewind gs) gs)
@@ -212,32 +250,10 @@
 ; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
 ; (define (tock gs) gs)
 (define (tock gs)
-  (cond
-    [(empty? (ugs-objects gs)) '()]
-    [else (make-ugs
-            (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-            (tockHelper (ugs-objects gs)))]))
+  gs)
 
 
-; List-of-Objects -> List-of-Objects
-; decreases the x coordinate of each object in the world
-; given object-x 3, expect object-x 1
-; given object-x 198, expect object-x 196
-(define (tockHelper loo)
-  (cond
-    [(empty? loo) '()]
-    [else (cons (cond
-                  [(object? (first loo)) (make-object
-                                             (- (object-x (first loo)) 2)
-                                           (object-y (first loo))
-                                           (object-image (first loo))
-                                           (object-lethal (first loo)))]
-                  [(enemy? (first loo)) (make-enemy
-                                             (- (enemy-x (first loo)) (enemy-vel (first loo)))
-                                           (enemy-y (first loo))
-                                           (enemy-image (first loo))
-                                           (enemy-vel (first loo)))])
-                (tockHelper (rest loo)))]))
+
 
 
 ; List-of-Objects, Image -> Image

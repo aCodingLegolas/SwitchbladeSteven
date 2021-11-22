@@ -250,10 +250,34 @@
 ; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
 ; (define (tock gs) gs)
 (define (tock gs)
-  gs)
+  (moveEnemy gs))
+
+(define (enemyApproach x1 x2)
+  (* (- x1 x2) .1))
 
 
+;signature: NUMBER -> NUMBER
+;purpose: calculate the value of x in the next world
+;header: (define (... x ...))
+; examples: given 10 |--> 24
+;template: (define (new_x 10) ...24...)
+;test function: see below every function 
+(define (moveEnemy gs)
+  (make-ugs
+   (ugs-menu gs)
+   (ugs-world gs)
+   (ugs-character gs)
+   (ugs-level gs)
+   (enemyHelper (filter enemy? (ugs-objects gs)))))
 
+(define (enemyHelper loo)
+  (cond
+    [(empty? loo) '()]
+    [else (cons (make-enemy (- (enemy-x (first loo)) (enemyApproach (enemy-x (first loo)) CHARACTER_X))
+                      (enemy-y (first loo))
+                      (enemy-image (first loo))
+                      (enemy-vel (first loo))) (enemyHelper (rest loo)))]))
+  
 
 
 ; List-of-Objects, Image -> Image

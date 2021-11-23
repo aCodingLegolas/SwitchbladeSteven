@@ -102,7 +102,8 @@
                          (ugs-world gs)
                          thing
                          (ugs-level gs)
-                         (ugs-objects gs) 0)]
+                         (ugs-objects gs)
+                         (ugs-keyboard gs))]
     [else gs]))
 
 

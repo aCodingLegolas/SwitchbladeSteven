@@ -89,48 +89,12 @@
           (character-temp (ugs-character gs))
           (character-image (ugs-character gs))))))
 
-
-; Gamestate -> Gamestate --- moves the world forward
-(define (forward gs)
-  (cond
-    [(empty? (ugs-objects gs)) '()]
-    [else (make-ugs
-            (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-            (forwardHelper (ugs-objects gs)) (ugs-keyboard gs))]))
-
-
-; List-of-Objects -> List-of-Objects
-; decreases the x coordinate of each object in the world
-
-(define (forwardHelper loo)
-  (cond
-    [(empty? loo) '()]
-    [else (cons (cond
-                  [(object? (first loo)) (make-object
-                                             (- (object-x (first loo)) 2)
-                                           (object-y (first loo))
-                                           (object-image (first loo))
-                                           (object-lethal (first loo)))]
-                  [(enemy? (first loo)) (cond
-                                          [(checkEnemyX (first loo)) (first loo)]
-                                          [else (make-enemy
-                                             (- (enemy-x (first loo)) 2)
-                                           (enemy-y (first loo))
-                                           (enemy-image (first loo))
-                                           (enemy-vel (first loo)))])
-                                          ])
-                (forwardHelper (rest loo)))]))
-
 (define (checkEnemyX en)
   (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
       
-; Gamestate -> Gamestate --- moves the world backwards
-(define (rewind gs)
-  gs)
-
 ; Character -> Character --- updates the character image to simulate moving legs
 (define (move-legs char)
-  char)
+  char) 
 
 
 ; Gamestate -> Boolean --- Checks for collision between the character and any given object in the world
@@ -172,11 +136,42 @@
    [(collision (ugs-character gs) (ugs-objects gs)) #true]
    [else #false]))
 
+
+; Tock Functions
 ; Gamestate -> Gamestate --- moves the world and its objects and its enemies
 (define (tock gs)
-  (if (keyboard-right (ugs-keyboard gs)) ; Checks is the right arrow is pressed
-      (forward gs)
-      gs))
+  (cond
+    [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (move gs -)]
+    [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (move gs +)]
+    [else gs]))
+
+; Gamestate -> Gamestate --- moves the world forward
+(define (move gs direction)
+  (cond
+    [(empty? (ugs-objects gs)) '()]
+    [else (make-ugs
+            (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+            (moveHelper (ugs-objects gs) direction) (ugs-keyboard gs))]))
+
+; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
+(define (moveHelper loo direction)
+  (cond
+    [(empty? loo) '()]
+    [else (cons (cond
+                  [(object? (first loo)) (make-object
+                                             (direction (object-x (first loo)) 2)
+                                           (object-y (first loo))
+                                           (object-image (first loo))
+                                           (object-lethal (first loo)))]
+                  [(enemy? (first loo)) (cond
+                                          [(checkEnemyX (first loo)) (first loo)]
+                                          [else (make-enemy
+                                                 (direction (enemy-x (first loo)) 2)
+                                                 (enemy-y (first loo))
+                                                 (enemy-image (first loo))
+                                                 (enemy-vel (first loo)))])
+                                        ])
+                (moveHelper (rest loo) direction))]))
 
 ; List-of-Objects, Image -> Image --- places all the objects in a list on the world background
 (define (renderAllObjects obj image)
@@ -198,8 +193,6 @@
          CHARACTER_X
          (character-y (ugs-character gs))
              (renderAllObjects (ugs-objects gs) BACKGROUND)))
-
-
 
 
 ; Main Big Bang function

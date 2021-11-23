@@ -30,6 +30,27 @@
 (define clearBoard (make-keyboard #f #f #f #f))
 
 ; Level-Definitions:
+(define world1.1 (make-ugs #f 1 steven 1
+  (list
+   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.2 (make-ugs #f 1 steven 2
+  (list
+   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.3 (make-ugs #f 1 steven 3
+  (list
+   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.4 (make-ugs #f 1 steven 4
+  (list
+   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.5 (make-ugs #f 1 steven 5
+  (list
+   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+
 ;(define mainMenu
  ; (make-ugs #t 0 steven 0 (list
   ;                         (make-menuButton (* (image-width mainMenuBackground) 0.25)

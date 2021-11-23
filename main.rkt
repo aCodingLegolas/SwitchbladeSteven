@@ -14,16 +14,33 @@
 (require 2htdp/universe)
 (require 2htdp/abstraction)
 
-(define mainMenuBackground
-  (rectangle 1700 800 "solid" "skyblue"))
-
-;STRUCTURES
-
+; Structures:
 (define-struct ugs [menu world character level objects keyboard])
 (define-struct character [y temp image])
 (define-struct object [x y image lethal])
+(define-struct menuButton [x y image return])
 (define-struct enemy [x y image vel])
 (define-struct keyboard [space left right escape])
+
+; Constants:
+(define charY 200)
+(define mainMenuBackground
+  (rectangle 1400 700 "solid" "lightgreen"))
+(define steven (make-character charY 0 (bitmap "man1.png")))
+(define clearBoard (make-keyboard #f #f #f #f))
+
+; Level-Definitions:
+;(define mainMenu
+ ; (make-ugs #t 0 steven 0 (list
+  ;                         (make-menuButton (* (image-width mainMenuBackground) 0.25)
+   ;                                         (* (image-width mainMenuBackground) 0.5)
+    ;                                        (square 40 "solid" "red")
+     ;                                       
+      ;                     (make-menuButton (* (image-width mainMenuBackground) 0.5)
+       ;                                     (* (image-width mainMenuBackground) 0.5))
+        ;                   (make-menuButton (* (image-width mainMenuBackground) 0.75)
+         ;                                   (* (image-width mainMenuBackground) 0.5)))
+          ;  clearBoard))
 
 ;TEST GAME
 (define BACKGROUND (empty-scene 200 200))

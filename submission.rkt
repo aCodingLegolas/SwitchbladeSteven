@@ -14,7 +14,8 @@
 (require 2htdp/universe)
 (require 2htdp/abstraction)
 
-
+(define mainMenuBackground
+  (rectangle 1700 800 "solid" "skyblue"))
 
 ;STRUCTURES
 
@@ -161,7 +162,7 @@
     [(empty? (ugs-objects gs)) '()]
     [else (make-ugs
             (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-            (forwardHelper (ugs-objects gs)) 0)]))
+            (forwardHelper (ugs-objects gs)) (ugs-keyboard gs))]))
 
 
 ; List-of-Objects -> List-of-Objects
@@ -234,19 +235,29 @@
 (define (killChar gs)
   gs)
 
+; String Boolean Keyboard -> Keyboard
+; Accepts a key-id, a boolean, and a keyboard. Returns an updated keyboard
+(define (changeKey key value keyboard)
+  (make-keyboard
+   (if (equal? key " ") value (keyboard-space keyboard))
+   (if (equal? key "left") value (keyboard-left keyboard))
+   (if (equal? key "right") value (keyboard-right keyboard))
+   (if (equal? key "escape") value (keyboard-escape keyboard))))
 
 ; Character Gamestate -> Gamestate
 ; accepts a keystroke (Character) and calls an assigned function
 ; given " " and character-y 25, expect character-y 35
 ; given ugs-objects-x 150, expect ugs-objects-x 148
 (define (onKey gs key)
- (cond
-   [(key=? key " ") (jump gs)]
-   [(key=? key "left") (rewind gs)]
-   [(key=? key "right") (forward gs)]
-   [else gs]))
+  (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs)
+            (cond
+              [(key=? key " ") (changeKey key #t (ugs-keyboard gs))]
+              [(key=? key "left") (changeKey key #t (ugs-keyboard gs))]
+              [(key=? key "right") (changeKey key #t (ugs-keyboard gs))]
+              [(key=? key "escape") (changeKey key #t (ugs-keyboard gs))]
+              [else gs])))
 
-
+ 
 ; Gamestate -> Boolean
 ; evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
 ; given object-x-300 and character-x 300, expect #t
@@ -263,7 +274,9 @@
 ; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
 ; (define (tock gs) gs)
 (define (tock gs)
-  gs)
+  (if (keyboard-right (ugs-keyboard gs)) ; Checks is the right arrow is pressed
+      (forward gs)
+      gs))
 
 
 

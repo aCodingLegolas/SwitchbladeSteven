@@ -24,12 +24,12 @@
 
 ; Constants:
 (define charY 200)
-(define mainMenuBackground
+(define mainB
   (rectangle 1400 700 "solid" "lightgreen"))
-(define steven (make-character charY 0 (bitmap "man1.png")))
+(define steven (make-character charY 0 (rectangle 20 80 "solid" "brown")))
 (define clearBoard (make-keyboard #f #f #f #f))
 
-; Level-Definitions:
+; Level-Definitions: 
 (define world1.1 (make-ugs #f 1 steven 1
   (list
    (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -47,21 +47,33 @@
    (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
    (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
 (define world1.5 (make-ugs #f 1 steven 5
-  (list
-   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1Menu (make-ugs #t 1 steven 0
+                             (list
+                              (make-menuButton (* (image-width mainB) 1/6)
+                                               (/ (image-width mainB) 2)
+                                               (square 40 "solid" "red")
+                                               world1.1)
+                              (make-menuButton (* (image-width mainB) 1/3)
+                                               (/ (image-width mainB) 2)
+                                               (square 40 "solid" "red")
+                                               world1.2)
+                              (make-menuButton (* (image-width mainB) 1/2)
+                                               (/ (image-width mainB) 2)
+                                               (square 40 "solid" "red")
+                                               world1.3)
+                              (make-menuButton (* (image-width mainB) 2/3)
+                                               (/ (image-width mainB) 2)
+                                               (square 40 "solid" "red")
+                                               world1.4)
+                              (make-menuButton (* (image-width mainB) 5/6)
+                                               (/ (image-width mainB) 2)
+                                               (square 40 "solid" "red")
+                                               world1.5))
+                             clearBoard))
 
-;(define mainMenu
- ; (make-ugs #t 0 steven 0 (list
-  ;                         (make-menuButton (* (image-width mainMenuBackground) 0.25)
-   ;                                         (* (image-width mainMenuBackground) 0.5)
-    ;                                        (square 40 "solid" "red")
-     ;                                       
-      ;                     (make-menuButton (* (image-width mainMenuBackground) 0.5)
-       ;                                     (* (image-width mainMenuBackground) 0.5))
-        ;                   (make-menuButton (* (image-width mainMenuBackground) 0.75)
-         ;                                   (* (image-width mainMenuBackground) 0.5)))
-          ;  clearBoard))
 
 ;TEST GAME
 (define BACKGROUND (empty-scene 200 200))
@@ -178,10 +190,11 @@
 ; Tock Functions
 ; Gamestate -> Gamestate --- moves the world and its objects and its enemies
 (define (tock gs)
+  (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
   (cond
     [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (move gs -)]
     [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (move gs +)]
-    [else gs]))
+    [else gs])))
 
 ; Gamestate -> Gamestate --- moves the world forward
 (define (move gs direction)
@@ -207,14 +220,18 @@
                                                  (direction (enemy-x (first loo)) 2)
                                                  (enemy-y (first loo))
                                                  (enemy-image (first loo))
-                                                 (enemy-vel (first loo)))])
-                                        ])
+                                                 (enemy-vel (first loo)))])]
+                  [else loo])
                 (moveHelper (rest loo) direction))]))
+
 
 ; List-of-Objects, Image -> Image --- places all the objects in a list on the world background
 (define (renderAllObjects obj image)
   (cond
     [(empty? obj) image]
+    [(menuButton? (first obj)) (place-image (menuButton-image (first obj))
+               (menuButton-x (first obj)) (menuButton-y (first obj))
+               (renderAllObjects (rest obj) image))]
     [(object? (first obj)) (place-image (object-image (first obj))
                (object-x (first obj)) (object-y (first obj))
                (renderAllObjects (rest obj) image))]
@@ -236,11 +253,11 @@
 ; Main Big Bang function
 (define (main gs)
   (big-bang gs
-    [on-tick tock .1]
+    [on-tick tock .01]
     [on-key onKey]
     [on-release onRelease]
     [stop-when endWorld killChar]
     [to-draw masterRender]))
 
 ; test the program
-(main testState)
+(main world1Menu)

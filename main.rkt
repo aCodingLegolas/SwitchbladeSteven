@@ -25,27 +25,27 @@
 ; Constants:
 (define charY 200)
 (define mainB
-  (rectangle 1400 700 "solid" "lightgreen"))
+  (rectangle 1400 700 "solid" "white"))
 (define steven (make-character charY 0 (rectangle 20 80 "solid" "brown")))
 (define clearBoard (make-keyboard #f #f #f #f))
 
 ; Level-Definitions: 
 (define world1.1 (make-ugs #f 1 steven 1
-  (list
-   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
 (define world1.2 (make-ugs #f 1 steven 2
-  (list
-   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
 (define world1.3 (make-ugs #f 1 steven 3
-  (list
-   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
 (define world1.4 (make-ugs #f 1 steven 4
-  (list
-   (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-   (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
 (define world1.5 (make-ugs #f 1 steven 5
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -53,24 +53,24 @@
 (define world1Menu (make-ugs #t 1 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/6)
-                                               (/ (image-width mainB) 2)
-                                               (square 40 "solid" "red")
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
                                                world1.1)
                               (make-menuButton (* (image-width mainB) 1/3)
-                                               (/ (image-width mainB) 2)
-                                               (square 40 "solid" "red")
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
                                                world1.2)
                               (make-menuButton (* (image-width mainB) 1/2)
-                                               (/ (image-width mainB) 2)
-                                               (square 40 "solid" "red")
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
                                                world1.3)
                               (make-menuButton (* (image-width mainB) 2/3)
-                                               (/ (image-width mainB) 2)
-                                               (square 40 "solid" "red")
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
                                                world1.4)
                               (make-menuButton (* (image-width mainB) 5/6)
-                                               (/ (image-width mainB) 2)
-                                               (square 40 "solid" "red")
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
                                                world1.5))
                              clearBoard))
 
@@ -94,7 +94,7 @@
                    lavaChar
                    1
                    (list object1 object2 enemy1)
-                   (make-keyboard #f #f #f #f)))
+                   clearBoard))
 
 
 
@@ -180,6 +180,24 @@
               (if (key=? key "right") #f (keyboard-right (ugs-keyboard gs)))
               (if (key=? key "escape") #f (keyboard-escape (ugs-keyboard gs))))))
 
+; Onkey-Event Gamestate -> Gamestate --- accepts a mouse-event, the x and y of the event, and a gamestate
+;  it only modifies the game-state if we're in menu-state
+(define (onMouse gs x y event)
+  (if (ugs-menu gs) ; Check for menu-state
+
+      ; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
+      (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+      (for/list ([button (ugs-objects gs)])
+        ; if the x falls in the abs of button-x - half the image-width AND y falls ...
+        (if (and
+             (<  (abs (- x (menuButton-x button))) (/ (image-width (menuButton-image button)) 2))
+             (<  (abs (- y (menuButton-x button))) (/ (image-height (menuButton-image button)) 2)))
+            button button))
+      clearBoard)
+      gs)) ; Return unmodified game-state by default
+
+
+;(mouse=? "button-down" event)
 ; Gamestate -> Boolean --- evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
 (define (endWorld gs)
  (cond
@@ -191,18 +209,18 @@
 ; Gamestate -> Gamestate --- moves the world and its objects and its enemies
 (define (tock gs)
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
-  (cond
-    [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (move gs -)]
-    [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (move gs +)]
-    [else gs])))
+      (cond
+        [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (move gs -)]
+        [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (move gs +)]
+        [else gs])))
 
 ; Gamestate -> Gamestate --- moves the world forward
 (define (move gs direction)
   (cond
     [(empty? (ugs-objects gs)) '()]
     [else (make-ugs
-            (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-            (moveHelper (ugs-objects gs) direction) (ugs-keyboard gs))]))
+           (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+           (moveHelper (ugs-objects gs) direction) (ugs-keyboard gs))]))
 
 ; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
 (define (moveHelper loo direction)
@@ -230,24 +248,25 @@
   (cond
     [(empty? obj) image]
     [(menuButton? (first obj)) (place-image (menuButton-image (first obj))
-               (menuButton-x (first obj)) (menuButton-y (first obj))
-               (renderAllObjects (rest obj) image))]
+                                            (menuButton-x (first obj)) (menuButton-y (first obj))
+                                            (renderAllObjects (rest obj) image))]
     [(object? (first obj)) (place-image (object-image (first obj))
-               (object-x (first obj)) (object-y (first obj))
-               (renderAllObjects (rest obj) image))]
+                                        (object-x (first obj)) (object-y (first obj))
+                                        (renderAllObjects (rest obj) image))]
     [(enemy? (first obj)) (place-image (enemy-image (first obj))
-               (enemy-x (first obj)) (enemy-y (first obj))
-               (renderAllObjects (rest obj) image))]
-    [else image]))
+                                       (enemy-x (first obj)) (enemy-y (first obj))
+                                       (renderAllObjects (rest obj) image))]))
 
 
 ; Gamestate -> Image --- Renders the entire game-state:
 (define (masterRender gs)
-  (place-image
-   (character-image (ugs-character gs))
-         CHARACTER_X
-         (character-y (ugs-character gs))
-             (renderAllObjects (ugs-objects gs) BACKGROUND)))
+  (if (ugs-menu gs) ;Don't render the character in menu-state
+      (renderAllObjects (ugs-objects gs) mainB)
+      (place-image
+       (character-image (ugs-character gs))
+       CHARACTER_X
+       (character-y (ugs-character gs))
+       (renderAllObjects (ugs-objects gs) mainB))))
 
 
 ; Main Big Bang function
@@ -256,6 +275,7 @@
     [on-tick tock .01]
     [on-key onKey]
     [on-release onRelease]
+    [on-mouse onMouse]
     [stop-when endWorld killChar]
     [to-draw masterRender]))
 

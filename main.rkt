@@ -187,15 +187,24 @@
 
       ; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
       (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-      (for/list ([button (ugs-objects gs)])
+      (for/list ([b (ugs-objects gs)])
         ; if the x falls in the abs of button-x - half the image-width AND y falls ...
-        (if (and
-             (<  (abs (- x (menuButton-x button))) (/ (image-width (menuButton-image button)) 2))
-             (<  (abs (- y (menuButton-x button))) (/ (image-height (menuButton-image button)) 2)))
-            button button))
+        (if (overButton? x y b)
+            (make-menuButton
+             (menuButton-x b)
+             (menuButton-y b)
+             (square 100 "solid" "green")
+             (menuButton-return b)) b))
       clearBoard)
       gs)) ; Return unmodified game-state by default
 
+; (define-struct menuButton [x y image return])
+
+; X Y Gamestate -> Boolean --- This checks if a x and y collides with a menuButton
+(define (overButton? x y b)
+  (and 
+   (<  (abs (- x (menuButton-x b))) (/ (image-width (menuButton-image b)) 2))
+   (<  (abs (- y (menuButton-y b))) (/ (image-height (menuButton-image b)) 2))))
 
 ;(mouse=? "button-down" event)
 ; Gamestate -> Boolean --- evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f

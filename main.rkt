@@ -1,7 +1,7 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname main) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-; Switchblade Steven
+; Switchblade Stephen
 ; created by JB, Friedrich, and June
 
 ;Project requirements:
@@ -14,174 +14,279 @@
 (require 2htdp/universe)
 (require 2htdp/abstraction)
 
-
-;STRUCTURES
-
-(define-struct ugs [menu world character level objects])
-; A ugs is a structure:
-;    (make-ugs menu world character level objects)
-; interpretation: (make-ugs menu world character level objects)
-; represents the complete state of a space invader game
-
-
-; A Menu is a Boolean:
-; interpretation: represents whether the game state is in play mode or menu mode
-
-
-; A World is a Number:
-; interpretation: the world determines the theme and challenges of the game
-
-
-(define-struct character [y temp img])
-; A Character is a structure:
-;    (make-character y temp img)                          
-; interpretation: (make-character y temp img) specificies the y position, the
-; temperature of the character in the ice world, and the associated image
-
-
-; A Level is a Number:
-; interpretation: the Level is the current level that the player has advanced to
-
-
-; An Objects is a List-of-Objects-and-Enemies
-
-
+; Structures:
+(define-struct ugs [menu world character level objects keyboard])
+(define-struct character [y temp image])
 (define-struct object [x y image lethal])
-; An Object is a structure:
-;     (make-object x y image lethal)
-; interpretation: (make-object x y image lethal) specifies the x & y coordinates of
-; the object, it's associated graphic, and whether or not the object is lethal to
-; the character
-
+(define-struct menuButton [x y image return])
 (define-struct enemy [x y image vel])
-; An Enemy is a structure:
-;     (make-enemy x y image vel)
-; interpretation: (make-enemy x y image vel) specifies the x & y coordinates of
-; the object, its associated graphic, and its velocity
+(define-struct keyboard [space left right escape])
+
+; Constants:
+(define charY 200)
+(define mainB
+  (rectangle 1400 700 "solid" "white"))
+(define steven (make-character charY 0 (rectangle 20 80 "solid" "brown")))
+(define clearBoard (make-keyboard #f #f #f #f))
+
+; Level-Definitions: 
+(define world1.1 (make-ugs #f 1 steven 1
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.2 (make-ugs #f 1 steven 2
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.3 (make-ugs #f 1 steven 3
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.4 (make-ugs #f 1 steven 4
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1.5 (make-ugs #f 1 steven 5
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world1Menu (make-ugs #t 1 steven 0
+                             (list
+                              (make-menuButton (* (image-width mainB) 1/6)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
+                                               world1.1)
+                              (make-menuButton (* (image-width mainB) 1/3)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
+                                               world1.2)
+                              (make-menuButton (* (image-width mainB) 1/2)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
+                                               world1.3)
+                              (make-menuButton (* (image-width mainB) 2/3)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
+                                               world1.4)
+                              (make-menuButton (* (image-width mainB) 5/6)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
+                                               world1.5))
+                             clearBoard))
+
+
+;TEST GAME
+(define BACKGROUND (empty-scene 200 200))
+(define HEIGHT (image-height BACKGROUND))
+(define WIDTH (image-height BACKGROUND))
+(define CHARACTER_X (/ (image-width BACKGROUND) 2))
+(define lavaCharShape (circle 10 "solid" "orange"))
+(define lavaChar (make-character 120 #false lavaCharShape))
+(define objImg (circle 10 "solid" "green"))
+(define objImg2 (square 10 "solid" "green"))
+(define object1 (make-object 50 50 objImg #false))
+(define object2 (make-object 150 150 objImg2 #false))
+(define enImg1 (circle 12 "solid" "black"))
+(define enemy1 (make-enemy 320 20 enImg1 5))
+(define testState (make-ugs
+                   #false
+                   1
+                   lavaChar
+                   1
+                   (list object1 object2 enemy1)
+                   clearBoard))
+
+
 
 
 ;FUNCTIONS
 
+; helper function to make a gamestate
+(define (makeGS gs thing)
+  (cond
+    [(character? thing) (make-ugs
+                         (ugs-menu gs)
+                         (ugs-world gs)
+                         thing
+                         (ugs-level gs)
+                         (ugs-objects gs)
+                         (ugs-keyboard gs))]
+    [else gs]))
+
+
 ;Gamestate -> Boolean
-; determines when the character has reached the end of the level
-; (define (complete-level gs) bool)
-; given ugs..., expect #true
-; given ugs..., expect #false
 (define (complete-level gs)
-  (...gs...bool...))
+  gs)
 
 ; Gamestate, Boolean -> Gamestate
 ; increases the level of the gamestate after a player completes a level
 ; or calls a function to end the world if the levels are all completed
-;(define (level-up gs bool) gs)
-; given ugs-level 1, #true, expect ugs-level 2
-; given ugs-level 5, #true, expect ugs-level 5
-; given ugs-level 1, #false, expect ugs-level 1
 (define (level-up gs bool)
-  (...gs...))
-
+  gs)
 
 ; Mouse-event,Gamestate -> Gamestate
 ; selects the world theme and character and returns the appropiate gamestate
-; (define (choose-world gs x y me) gs)
-; given x=150,y=150, "button-down", expect (ugs-world 1)
-; given x+200, y=150, "button-down", expect (ugs-world 2)
-; given x=250, y=150, "button-down", expect (ugs-world 3)
 (define (choose-world gs x y me)
-  (...gs...))
-
-
-; Character -> Character
-; increases the character's y coordinate by 2 pixels
-; (define (jump char) char)
-; given (character-y 25), expect (character-y 27)
-; given (character-yy HEIGHT), expect (character-y HEIGHT)
-(define (jump char)
-  (if (= (character-y char) HEIGHT)
-      char
-      (make-character (character-temp char)(+ (character-y char) 2))))
-
+  gs)
 
 ; Gamestate -> Gamestate
-; moves the world forward
-; (define (forward gs) gs)
-; given ugs-objects-x 150, expect ugs-objects-x 148
-; given ugs-objects-x 320, expect ugs-objects-x 318
-(define (forward gs)
-  (...gs...))
+(define (jump gs)
+  (if (= (character-y (ugs-character gs)) HEIGHT)
+      gs
+      (makeGS gs
+         (make-character
+          (- (character-y (ugs-character gs)) 2)
+          (character-temp (ugs-character gs))
+          (character-image (ugs-character gs))))))
 
-
-; Gamestate -> Gamestate
-; moves the world backwards
-; (define (rewind gs) gs)
-; given ugs-objects-x 150, expect ugs-objects-x 152
-; given ugs-objects-x 320, expect ugs-objects-x 322
-(define (rewind gs)
-  (...gs...))
-
-
-; Character -> Character
-; updates the character image to simulate moving legs
-; (define (move-legs char) char)
-; given char-img 1, expect char-img 2
-; given char-img 4, expect char-img 1
+(define (checkEnemyX en)
+  (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
+      
+; Character -> Character --- updates the character image to simulate moving legs
 (define (move-legs char)
-  (...char...))
+  char) 
 
 
+; Gamestate -> Boolean --- Checks for collision between the character and any given object in the world
+(define (collision char object)
+  #false)
+
+;adjust-char
 ; Gamestate -> Gamestate
-; moves the world and its objects and its enemies
-; according to their velocity
-; given ugs-object-x 230, expect ugs-object-x 228
-; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
-; (define (tock gs) gs)
+; Moves the character ontop of the "floor" if the amount of collision is less than the tolerated amount.
+; (define (adjust-char gs char) gs char)
+(define (adjust-char gs char)
+  gs)
+
+; Gamestate -> Gamestate --- Kills the character if the gamestate is such that the character deserves a slow and painful death
+(define (killChar gs)
+  gs)
+
+; Character Gamestate -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
+(define (onKey gs key)
+  (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs)
+            (make-keyboard
+              (if (key=? key " ") #t (keyboard-space (ugs-keyboard gs)))
+              (if (key=? key "left") #t (keyboard-left (ugs-keyboard gs)))
+              (if (key=? key "right") #t (keyboard-right (ugs-keyboard gs)))
+              (if (key=? key "escape") #t (keyboard-escape (ugs-keyboard gs))))))
+
+; Character Gamestate -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
+(define (onRelease gs key)
+  (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs)
+            (make-keyboard
+              (if (key=? key " ") #f (keyboard-space (ugs-keyboard gs)))
+              (if (key=? key "left") #f (keyboard-left (ugs-keyboard gs)))
+              (if (key=? key "right") #f (keyboard-right (ugs-keyboard gs)))
+              (if (key=? key "escape") #f (keyboard-escape (ugs-keyboard gs))))))
+
+; Onkey-Event Gamestate -> Gamestate --- accepts a mouse-event, the x and y of the event, and a gamestate
+;  it only modifies the game-state if we're in menu-state
+(define (onMouse gs x y event)
+  (if (ugs-menu gs) ; Check for menu-state
+
+      ; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
+      (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+      (for/list ([b (ugs-objects gs)])
+        ; if the x falls in the abs of button-x - half the image-width AND y falls ...
+        (if (overButton? x y b)
+            (make-menuButton
+             (menuButton-x b)
+             (menuButton-y b)
+             (square 100 "solid" "green")
+             (menuButton-return b)) b))
+      clearBoard)
+      gs)) ; Return unmodified game-state by default
+
+; (define-struct menuButton [x y image return])
+
+; X Y Gamestate -> Boolean --- This checks if a x and y collides with a menuButton
+(define (overButton? x y b)
+  (and 
+   (<  (abs (- x (menuButton-x b))) (/ (image-width (menuButton-image b)) 2))
+   (<  (abs (- y (menuButton-y b))) (/ (image-height (menuButton-image b)) 2))))
+
+;(mouse=? "button-down" event)
+; Gamestate -> Boolean --- evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
+(define (endWorld gs)
+ (cond
+   [(collision (ugs-character gs) (ugs-objects gs)) #true]
+   [else #false]))
+
+
+; Tock Functions
+; Gamestate -> Gamestate --- moves the world and its objects and its enemies
 (define (tock gs)
-  (...gs...))
+  (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
+      (cond
+        [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (move gs -)]
+        [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (move gs +)]
+        [else gs])))
 
-
-; Constants:
-(define MENU_BACKGROUND
-  (rectangle 1700 800 "solid" "skyblue"))
-(define CHARACTER_X 200)
-
-; The structures used:
-(define-struct ugs [menu world character level objects])
-(define-struct character [y temp image])
-(define-struct object [x y image lethal])
-
-; Lists of objects that represents levels, both in both menu and play-state:
-(define m_menu
-  (list
-   (make-object 300 400 (square 80 "solid" "red") #false)
-   (make-object 600 100 (square 50 "solid" "red") #false)
-   (make-object 200 200 (square 20 "solid" "red") #false)))
-
-; Renders an object-struct:
-(define (render_object ob im)
-  (place-image (object-image ob) (object-x ob) (object-y ob) im))
-
-; Renders the list of objects on the background-image:
-(define (render_all_objects loo)
+; Gamestate -> Gamestate --- moves the world forward
+(define (move gs direction)
   (cond
-    [(empty? loo) MENU_BACKGROUND]
-    [else (render_object (first loo) (render_all_objects (rest loo)))]))
+    [(empty? (ugs-objects gs)) '()]
+    [else (make-ugs
+           (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+           (moveHelper (ugs-objects gs) direction) (ugs-keyboard gs))]))
+
+; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
+(define (moveHelper loo direction)
+  (cond
+    [(empty? loo) '()]
+    [else (cons (cond
+                  [(object? (first loo)) (make-object
+                                             (direction (object-x (first loo)) 2)
+                                           (object-y (first loo))
+                                           (object-image (first loo))
+                                           (object-lethal (first loo)))]
+                  [(enemy? (first loo)) (cond
+                                          [(checkEnemyX (first loo)) (first loo)]
+                                          [else (make-enemy
+                                                 (direction (enemy-x (first loo)) 2)
+                                                 (enemy-y (first loo))
+                                                 (enemy-image (first loo))
+                                                 (enemy-vel (first loo)))])]
+                  [else loo])
+                (moveHelper (rest loo) direction))]))
 
 
+; List-of-Objects, Image -> Image --- places all the objects in a list on the world background
+(define (renderAllObjects obj image)
+  (cond
+    [(empty? obj) image]
+    [(menuButton? (first obj)) (place-image (menuButton-image (first obj))
+                                            (menuButton-x (first obj)) (menuButton-y (first obj))
+                                            (renderAllObjects (rest obj) image))]
+    [(object? (first obj)) (place-image (object-image (first obj))
+                                        (object-x (first obj)) (object-y (first obj))
+                                        (renderAllObjects (rest obj) image))]
+    [(enemy? (first obj)) (place-image (enemy-image (first obj))
+                                       (enemy-x (first obj)) (enemy-y (first obj))
+                                       (renderAllObjects (rest obj) image))]))
 
-; Renders the entire game-state:
-(define (master_render game-struct)
-  (place-image
-   (character-image (ugs-character game-struct))
-   CHARACTER_X
-   (character-y (ugs-character game-struct))
-   (render_all_objects (ugs-objects game-struct))))
-; Main, using big-bang:
-(define (main ugs)
-  (big-bang ugs
-    [to-draw master_render]))
 
-; The start-state:
-(define start_state
-  (make-ugs #true 0 (make-character 300 1 (circle 30 "solid" "green")) 0 m_menu))
+; Gamestate -> Image --- Renders the entire game-state:
+(define (masterRender gs)
+  (if (ugs-menu gs) ;Don't render the character in menu-state
+      (renderAllObjects (ugs-objects gs) mainB)
+      (place-image
+       (character-image (ugs-character gs))
+       CHARACTER_X
+       (character-y (ugs-character gs))
+       (renderAllObjects (ugs-objects gs) mainB))))
 
-(main start_state)
+
+; Main Big Bang function
+(define (main gs)
+  (big-bang gs
+    [on-tick tock .01]
+    [on-key onKey]
+    [on-release onRelease]
+    [on-mouse onMouse]
+    [stop-when endWorld killChar]
+    [to-draw masterRender]))
+
+; test the program
+(main world1Menu)

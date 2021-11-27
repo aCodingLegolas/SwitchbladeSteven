@@ -14,14 +14,13 @@
 (require 2htdp/universe)
 (require 2htdp/abstraction)
 
-(define mainMenuBackground
-  (rectangle 1700 800 "solid" "skyblue"))
+
 
 ;STRUCTURES
 
-(define-struct ugs [menu world character level objects keyboard])
+(define-struct ugs [menu world character level objects])
 ; A ugs is a structure:
-;    (make-ugs menu world character level objects keyboard)
+;    (make-ugs menu world character level objects)
 ; interpretation: (make-ugs menu world character level objects)
 ; represents the complete state of a space invader game
 
@@ -61,12 +60,6 @@
 ; interpretation: (make-enemy x y image vel) specifies the x & y coordinates of
 ; the object, its associated graphic, and its velocity
 
-(define-struct keyboard [space left right escape])
-; A keyboard is a structure:
-;     (make-keyboard space left right escape)
-; interpretation: (make-keyboard space left right escape) specifies which keys are currently pressed.
-; this information changes how the tock and render functions work.
-
 
 ;TEST GAME
 
@@ -82,13 +75,7 @@
 (define object2 (make-object 150 150 objImg2 #false))
 (define enImg1 (circle 12 "solid" "black"))
 (define enemy1 (make-enemy 320 20 enImg1 5))
-(define testState (make-ugs
-                   #false
-                   1
-                   lavaChar
-                   1
-                   (list object1 object2 enemy1)
-                   (make-keyboard #f #f #f #f)))
+(define testState (make-ugs #false 1 lavaChar 1 (list object1 object2 enemy1)))
 
 
 
@@ -103,8 +90,7 @@
                          (ugs-world gs)
                          thing
                          (ugs-level gs)
-                         (ugs-objects gs)
-                         (ugs-keyboard gs))]
+                         (ugs-objects gs))]
     [else gs]))
 
 
@@ -162,7 +148,7 @@
     [(empty? (ugs-objects gs)) '()]
     [else (make-ugs
             (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-            (forwardHelper (ugs-objects gs)) (ugs-keyboard gs))]))
+            (forwardHelper (ugs-objects gs)))]))
 
 
 ; List-of-Objects -> List-of-Objects
@@ -235,29 +221,19 @@
 (define (killChar gs)
   gs)
 
-; String Boolean Keyboard -> Keyboard
-; Accepts a key-id, a boolean, and a keyboard. Returns an updated keyboard
-(define (changeKey key value keyboard)
-  (make-keyboard
-   (if (equal? key " ") value (keyboard-space keyboard))
-   (if (equal? key "left") value (keyboard-left keyboard))
-   (if (equal? key "right") value (keyboard-right keyboard))
-   (if (equal? key "escape") value (keyboard-escape keyboard))))
 
 ; Character Gamestate -> Gamestate
 ; accepts a keystroke (Character) and calls an assigned function
 ; given " " and character-y 25, expect character-y 35
 ; given ugs-objects-x 150, expect ugs-objects-x 148
 (define (onKey gs key)
-  (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs)
-            (cond
-              [(key=? key " ") (changeKey key #t (ugs-keyboard gs))]
-              [(key=? key "left") (changeKey key #t (ugs-keyboard gs))]
-              [(key=? key "right") (changeKey key #t (ugs-keyboard gs))]
-              [(key=? key "escape") (changeKey key #t (ugs-keyboard gs))]
-              [else gs])))
+ (cond
+   [(key=? key " ") (jump gs)]
+   [(key=? key "left") (rewind gs)]
+   [(key=? key "right") (forward gs)]
+   [else gs]))
 
- 
+
 ; Gamestate -> Boolean
 ; evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
 ; given object-x-300 and character-x 300, expect #t
@@ -274,9 +250,9 @@
 ; given ugs-enemy-x 118, ugs-enemy-vel 15, expect ugs-enemy-x 133
 ; (define (tock gs) gs)
 (define (tock gs)
-  (if (keyboard-right (ugs-keyboard gs)) ; Checks is the right arrow is pressed
-      (forward gs)
-      gs))
+  gs)
+
+
 
 
 

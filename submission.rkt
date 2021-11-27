@@ -280,8 +280,6 @@
 
 
 
-
-
 ; List-of-Objects, Image -> Image
 ; places all the objects in a list on the world background
 ; (define (renderAllObjects obj image) image)

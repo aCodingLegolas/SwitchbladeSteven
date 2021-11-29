@@ -24,8 +24,7 @@
 
 ; Constants:
 (define charY 200)
-(define mainB
-  (rectangle 1400 700 "solid" "white"))
+(define mainB (rectangle 1400 700 "solid" "white"))
 (define steven (make-character charY 0 (rectangle 20 80 "solid" "brown")))
 (define clearBoard (make-keyboard #f #f #f #f))
 
@@ -184,19 +183,31 @@
 ;  it only modifies the game-state if we're in menu-state
 (define (onMouse gs x y event)
   (if (ugs-menu gs) ; Check for menu-state
+      (if (mouse=? "button-down" event)
+      (loadWorld gs x y)
+      (highlightButton gs x y))
+      gs)) ; Return unmodified game-state by default
 
-      ; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
-      (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
+; Returns the world value of the button
+(define (loadWorld gs x y)
+  gs)
+
+; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
+(define (highlightButton gs x y)
+  (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
       (for/list ([b (ugs-objects gs)])
-        ; if the x falls in the abs of button-x - half the image-width AND y falls ...
         (if (overButton? x y b)
             (make-menuButton
              (menuButton-x b)
              (menuButton-y b)
              (square 100 "solid" "green")
-             (menuButton-return b)) b))
-      clearBoard)
-      gs)) ; Return unmodified game-state by default
+             (menuButton-return b))
+            (make-menuButton
+             (menuButton-x b)
+             (menuButton-y b)
+             (square 100 "solid" "red")
+             (menuButton-return b))))
+      clearBoard))
 
 ; (define-struct menuButton [x y image return])
 

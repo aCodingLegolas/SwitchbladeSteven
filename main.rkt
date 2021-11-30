@@ -18,17 +18,19 @@
 (define-struct ugs [menu world character level objects keyboard])
 (define-struct character [y temp image])
 (define-struct object [x y image lethal])
-(define-struct menuButton [x y image return])
+(define-struct menuButton [x y image highlighted? return])
 (define-struct enemy [x y image vel])
 (define-struct keyboard [space left right escape])
 
 ; Constants:
 (define charY 200)
 (define mainB (rectangle 1400 700 "solid" "white"))
+(define highlightImage (square 120 "solid" "black"))
 (define steven (make-character charY 0 (rectangle 20 80 "solid" "brown")))
 (define clearBoard (make-keyboard #f #f #f #f))
 
-; Level-Definitions: 
+; Level-Definitions:
+; Fritz's world
 (define world1.1 (make-ugs #f 1 steven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -46,15 +48,99 @@
                               (make-menuButton (* (image-width mainB) 1/4)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "red")
+                                               #f
                                                world1.1)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "red")
+                                               #f
                                                world1.2)
                               (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "red")
+                                               #f
                                                world1.3))
+                             clearBoard))
+; Bergen's world
+(define world2.1 (make-ugs #f 2 steven 1
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world2.2 (make-ugs #f 2 steven 2
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world2.3 (make-ugs #f 2 steven 3
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world2Menu (make-ugs #t 2 steven 0
+                             (list
+                              (make-menuButton (* (image-width mainB) 1/4)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "blue")
+                                               #f
+                                               world1.1)
+                              (make-menuButton (* (image-width mainB) 1/2)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "blue")
+                                               #f
+                                               world1.2)
+                              (make-menuButton (* (image-width mainB) 3/4)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "blue")
+                                               #f
+                                               world1.3))
+                             clearBoard))
+; June's world
+(define world3.1 (make-ugs #f 3 steven 1
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world3.2 (make-ugs #f 3 steven 2
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world3.3 (make-ugs #f 3 steven 3
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+(define world3Menu (make-ugs #t 3 steven 0
+                             (list
+                              (make-menuButton (* (image-width mainB) 1/4)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "green")
+                                               #f
+                                               world3.1)
+                              (make-menuButton (* (image-width mainB) 1/2)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "green")
+                                               #f
+                                               world3.2)
+                              (make-menuButton (* (image-width mainB) 3/4)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "green")
+                                               #f
+                                               world3.3))
+                             clearBoard))
+; Main menu
+(define mainMenu (make-ugs #t 0 steven 0
+                             (list
+                              (make-menuButton (* (image-width mainB) 1/4)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "red")
+                                               #f
+                                               world1Menu)
+                              (make-menuButton (* (image-width mainB) 1/2)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "blue")
+                                               #f
+                                               world2Menu)
+                              (make-menuButton (* (image-width mainB) 3/4)
+                                               (/ (image-height mainB) 2)
+                                               (square 100 "solid" "green")
+                                               #f
+                                               world3Menu))
                              clearBoard))
 
 
@@ -184,17 +270,12 @@
 (define (highlightButton gs x y)
   (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
       (for/list ([b (ugs-objects gs)])
-        (if (overButton? x y b)
-            (make-menuButton
-             (menuButton-x b)
-             (menuButton-y b)
-             (square 100 "solid" "green")
-             (menuButton-return b))
-            (make-menuButton
-             (menuButton-x b)
-             (menuButton-y b)
-             (square 100 "solid" "red")
-             (menuButton-return b))))
+        (make-menuButton
+         (menuButton-x b)
+         (menuButton-y b)
+         (menuButton-image b)
+         (if (overButton? x y b) #t #f)
+         (menuButton-return b)))
       clearBoard))
 
 ; (define-struct menuButton [x y image return])
@@ -255,7 +336,11 @@
 (define (renderAllObjects obj image)
   (cond
     [(empty? obj) image]
-    [(menuButton? (first obj)) (place-image (menuButton-image (first obj))
+    [(menuButton? (first obj)) (place-image (if (menuButton-highlighted? (first obj))
+                                                (overlay
+                                                 (menuButton-image (first obj))
+                                                 highlightImage)
+                                                (menuButton-image (first obj)))
                                             (menuButton-x (first obj)) (menuButton-y (first obj))
                                             (renderAllObjects (rest obj) image))]
     [(object? (first obj)) (place-image (object-image (first obj))
@@ -288,4 +373,4 @@
     [to-draw masterRender]))
 
 ; test the program
-(main world1Menu)
+(main mainMenu)

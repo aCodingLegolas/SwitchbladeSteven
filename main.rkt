@@ -80,17 +80,17 @@
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "blue")
                                                #f
-                                               world1.1)
+                                               world2.1)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "blue")
                                                #f
-                                               world1.2)
+                                               world2.2)
                               (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "blue")
                                                #f
-                                               world1.3))
+                                               world2.3))
                              clearBoard))
 ; June's world
 (define world3.1 (make-ugs #f 3 steven 1
@@ -256,7 +256,10 @@
       (if (> (ugs-world gs) 0)
           mainMenu
           (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) '() clearBoard))
-      gs))
+      (cond
+        [(equal? (ugs-world gs) 1) world1Menu]
+        [(equal? (ugs-world gs) 2) world2Menu]
+        [(equal? (ugs-world gs) 3) world3Menu])))
 
 ; Onkey-Event Gamestate -> Gamestate --- accepts a mouse-event, the x and y of the event, and a gamestate
 ;  it only modifies the game-state if we're in menu-state

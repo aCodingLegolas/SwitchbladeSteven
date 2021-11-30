@@ -41,36 +41,20 @@
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
                             (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
-(define world1.4 (make-ugs #f 1 steven 4
-                           (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
-(define world1.5 (make-ugs #f 1 steven 5
-                           (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
 (define world1Menu (make-ugs #t 1 steven 0
                              (list
-                              (make-menuButton (* (image-width mainB) 1/6)
+                              (make-menuButton (* (image-width mainB) 1/4)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "red")
                                                world1.1)
-                              (make-menuButton (* (image-width mainB) 1/3)
-                                               (/ (image-height mainB) 2)
-                                               (square 100 "solid" "red")
-                                               world1.2)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "red")
-                                               world1.3)
-                              (make-menuButton (* (image-width mainB) 2/3)
+                                               world1.2)
+                              (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "red")
-                                               world1.4)
-                              (make-menuButton (* (image-width mainB) 5/6)
-                                               (/ (image-height mainB) 2)
-                                               (square 100 "solid" "red")
-                                               world1.5))
+                                               world1.3))
                              clearBoard))
 
 
@@ -190,7 +174,11 @@
 
 ; Returns the world value of the button
 (define (loadWorld gs x y)
-  gs)
+  (cond
+    [(overButton? x y (first (ugs-objects gs))) (menuButton-return (first (ugs-objects gs)))]
+    [(overButton? x y (second (ugs-objects gs))) (menuButton-return (second (ugs-objects gs)))]
+    [(overButton? x y (third (ugs-objects gs))) (menuButton-return (third (ugs-objects gs)))]
+    [else gs]))
 
 ; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
 (define (highlightButton gs x y)

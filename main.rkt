@@ -16,7 +16,7 @@
 
 ; Structures:
 (define-struct ugs [menu world character level objects keyboard])
-(define-struct character [y temp image])
+(define-struct character [y yVel temp image])
 (define-struct object [x y image lethal])
 (define-struct menuButton [x y image highlighted? return])
 (define-struct enemy [x y image vel])
@@ -26,8 +26,13 @@
 (define charY 200)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define highlightImage (square 120 "solid" "black"))
-(define steven (make-character charY 0 (rectangle 20 80 "solid" "brown")))
+(define steven (make-character charY 0 0 (rectangle 20 80 "solid" "brown")))
 (define clearBoard (make-keyboard #f #f #f #f))
+
+; Physics:
+(define jumpStrength 5)
+(define maxFall 2)
+(define gravity 0.1)
 
 ; Level-Definitions:
 ; Fritz's world
@@ -80,17 +85,17 @@
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "blue")
                                                #f
-                                               world1.1)
+                                               world2.1)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "blue")
                                                #f
-                                               world1.2)
+                                               world2.2)
                               (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
                                                (square 100 "solid" "blue")
                                                #f
-                                               world1.3))
+                                               world2.3))
                              clearBoard))
 ; June's world
 (define world3.1 (make-ugs #f 3 steven 1
@@ -150,7 +155,7 @@
 (define WIDTH (image-height BACKGROUND))
 (define CHARACTER_X (/ (image-width BACKGROUND) 2))
 (define lavaCharShape (circle 10 "solid" "orange"))
-(define lavaChar (make-character 120 #false lavaCharShape))
+(define lavaChar (make-character 0 120 #false lavaCharShape))
 (define objImg (circle 10 "solid" "green"))
 (define objImg2 (square 10 "solid" "green"))
 (define object1 (make-object 50 50 objImg #false))
@@ -199,14 +204,14 @@
   gs)
 
 ; Gamestate -> Gamestate
-(define (jump gs)
-  (if (= (character-y (ugs-character gs)) HEIGHT)
-      gs
-      (makeGS gs
-         (make-character
-          (- (character-y (ugs-character gs)) 2)
-          (character-temp (ugs-character gs))
-          (character-image (ugs-character gs))))))
+;(define (jump gs)
+ ; (if (= (character-y (ugs-character gs)) HEIGHT)           !!!! idk maybe delete this
+  ;    gs
+   ;   (makeGS gs
+    ;     (make-character
+     ;     (- (character-y (ugs-character gs)) 2)
+      ;    (character-temp (ugs-character gs))
+       ;   (character-image (ugs-character gs))))))
 
 (define (checkEnemyX en)
   (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
@@ -233,8 +238,10 @@
 
 ; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onKey gs key)
-  (if (key=? key "escape") (escapeKey gs)
-  (updateKeyboard gs key #t)))
+  (cond
+    [(key=? key "escape") (escapeKey gs)]
+    [(key=? key " ") (jump gs)]
+    [else (updateKeyboard gs key #t)]))
 
 ; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onRelease gs key)
@@ -256,7 +263,10 @@
       (if (> (ugs-world gs) 0)
           mainMenu
           (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) '() clearBoard))
-      gs))
+      (cond
+        [(equal? (ugs-world gs) 1) world1Menu]
+        [(equal? (ugs-world gs) 2) world2Menu]
+        [(equal? (ugs-world gs) 3) world3Menu])))
 
 ; Onkey-Event Gamestate -> Gamestate --- accepts a mouse-event, the x and y of the event, and a gamestate
 ;  it only modifies the game-state if we're in menu-state
@@ -305,20 +315,27 @@
 
 ; Tock Functions
 ; Gamestate -> Gamestate --- moves the world and its objects and its enemies
+
+; (define-struct ugs [menu world character level objects keyboard])
+
 (define (tock gs)
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
-      (cond
-        [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (move gs -)]
-        [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (move gs +)]
-        [else gs])))
+      (make-ugs (ugs-menu gs)
+                (ugs-world gs)
+                (gravityHappens (ugs-character gs))
+                (ugs-level gs)
+                (move gs)
+                (ugs-keyboard gs)
+                ))) 
+  
 
 ; Gamestate -> Gamestate --- moves the world forward
-(define (move gs direction)
+(define (move gs)
   (cond
-    [(empty? (ugs-objects gs)) '()]
-    [else (make-ugs
-           (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-           (moveHelper (ugs-objects gs) direction) (ugs-keyboard gs))]))
+        [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) -)]
+        [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) +)]
+        [else (ugs-objects gs)]))
+   
 
 ; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
 (define (moveHelper loo direction)
@@ -339,6 +356,30 @@
                                                  (enemy-vel (first loo)))])]
                   [else loo])
                 (moveHelper (rest loo) direction))]))
+
+;(define-struct ugs [menu world character level objects keyboard])
+; Gamestate -> Gamestate --- this function adds the jumpStrength to the y-value of the character
+(define (jump gs)
+  (make-ugs (ugs-menu gs) (ugs-world gs)
+  (make-character
+   (character-y (ugs-character gs))
+   (- jumpStrength)
+   (character-temp (ugs-character gs))
+   (character-image (ugs-character gs)))
+  (ugs-level gs)
+  (ugs-objects gs)
+  (ugs-keyboard gs)))
+
+; Gamestate -> Gamestate --- effects gravity on the world
+(define (gravityHappens char)
+  (make-character
+   (+ (character-y char) (character-yVel char))
+   (if (<= (character-yVel char) maxFall) (+ (character-yVel char) gravity) (character-yVel char))
+   (character-temp char)
+   (character-image char)))
+
+
+;(define-struct character [y yVel temp image])
 
 
 ; List-of-Objects, Image -> Image --- places all the objects in a list on the world background

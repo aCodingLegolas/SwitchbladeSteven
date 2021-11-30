@@ -231,23 +231,32 @@
 (define (killChar gs)
   gs)
 
-; Character Gamestate -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
+; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onKey gs key)
-  (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs)
-            (make-keyboard
-              (if (key=? key " ") #t (keyboard-space (ugs-keyboard gs)))
-              (if (key=? key "left") #t (keyboard-left (ugs-keyboard gs)))
-              (if (key=? key "right") #t (keyboard-right (ugs-keyboard gs)))
-              (if (key=? key "escape") #t (keyboard-escape (ugs-keyboard gs))))))
+  (if (key=? key "escape") (escapeKey gs)
+  (updateKeyboard gs key #t)))
 
-; Character Gamestate -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
+; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onRelease gs key)
+  (updateKeyboard gs key #f))
+
+; Character Gamestate Keyevent Boolean -> Gamestate --- updates the keyboard according to onKey and onRelease
+(define (updateKeyboard gs key value)
   (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) (ugs-objects gs)
             (make-keyboard
-              (if (key=? key " ") #f (keyboard-space (ugs-keyboard gs)))
-              (if (key=? key "left") #f (keyboard-left (ugs-keyboard gs)))
-              (if (key=? key "right") #f (keyboard-right (ugs-keyboard gs)))
-              (if (key=? key "escape") #f (keyboard-escape (ugs-keyboard gs))))))
+              (if (key=? key " ") value (keyboard-space (ugs-keyboard gs)))
+              (if (key=? key "left") value (keyboard-left (ugs-keyboard gs)))
+              (if (key=? key "right") value (keyboard-right (ugs-keyboard gs)))
+              (if (key=? key "escape") value (keyboard-escape (ugs-keyboard gs))))))
+
+; Gamestate -> Gamestate --- Exits the world if menu-state == #f, backs up a level in menu-state,
+;                             exists the game if were're in the mainMenu
+(define (escapeKey gs)
+  (if (ugs-menu gs)
+      (if (> (ugs-world gs) 0)
+          mainMenu
+          (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) '() clearBoard))
+      gs))
 
 ; Onkey-Event Gamestate -> Gamestate --- accepts a mouse-event, the x and y of the event, and a gamestate
 ;  it only modifies the game-state if we're in menu-state
@@ -361,6 +370,8 @@
        (character-y (ugs-character gs))
        (renderAllObjects (ugs-objects gs) mainB))))
 
+(define (stop gs)
+  (empty? (ugs-objects gs)))
 
 ; Main Big Bang function
 (define (main gs)
@@ -369,7 +380,8 @@
     [on-key onKey]
     [on-release onRelease]
     [on-mouse onMouse]
-    [stop-when endWorld killChar]
+    [stop-when stop]
+    [close-on-stop #true]
     [to-draw masterRender]))
 
 ; test the program

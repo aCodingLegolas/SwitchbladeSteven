@@ -30,8 +30,8 @@
 (define clearBoard (make-keyboard #f #f #f #f))
 
 ; Physics:
-(define jumpStrength 5)
-(define maxFall 2)
+(define jumpStrength 10)
+(define maxFall 10)
 (define gravity 0.1)
 
 ; Level-Definitions:

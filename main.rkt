@@ -26,13 +26,20 @@
 (define charY 200)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define highlightImage (square 120 "solid" "black"))
+<<<<<<< Updated upstream
 (define steven (make-character charY 0 0 (rectangle 20 80 "solid" "brown")))
+=======
+(define steven (make-character charY 0 0 (bitmap "Steven.png")))
+(define fakeSteven (make-character charY 0 0 (rectangle 30 100 "solid" "brown")))
+(define (charH gs) (image-height (character-image (ugs-character gs))))
+(define (charW gs) (image-width (character-image (ugs-character gs))))
+>>>>>>> Stashed changes
 (define clearBoard (make-keyboard #f #f #f #f))
 
 ; Physics:
-(define jumpStrength 10)
-(define maxFall 10)
-(define gravity 0.1)
+(define jumpStrength 7)
+(define maxFall 4)
+(define gravity 0.2)
 
 ; Level-Definitions:
 ; Fritz's world
@@ -67,10 +74,10 @@
                                                world1.3))
                              clearBoard))
 ; Bergen's world
-(define world2.1 (make-ugs #f 2 steven 1
+(define world2.1 (make-ugs #f 2 fakeSteven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 1500 5 "solid" "green") #f)) clearBoard))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -316,8 +323,6 @@
 ; Tock Functions
 ; Gamestate -> Gamestate --- moves the world and its objects and its enemies
 
-; (define-struct ugs [menu world character level objects keyboard])
-
 (define (tock gs)
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
       (make-ugs (ugs-menu gs)
@@ -377,6 +382,10 @@
    (if (<= (character-yVel char) maxFall) (+ (character-yVel char) gravity) (character-yVel char))
    (character-temp char)
    (character-image char)))
+
+; Gamestate -> Gamestate --- checks the list of objects in the world for collision
+;                             and returns the new posn of the character
+
 
 
 ;(define-struct character [y yVel temp image])

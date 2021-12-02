@@ -63,7 +63,7 @@
    (+ (bird-vel (game-bird gs)) (bird-y (game-bird gs)))
    (cond
      [(>= (bird-vel (game-bird gs)) 15) (bird-vel (game-bird gs))]
-     [else (+ (bird-vel (game-bird gs)) 0.5)])))
+     [else (+ (bird-vel (game-bird gs)) 1)])))
 
 (define (build_random_gate gg seed)
   (make-gate

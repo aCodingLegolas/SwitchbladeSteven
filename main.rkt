@@ -26,7 +26,7 @@
 (define charY 200)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define highlightImage (square 120 "solid" "black"))
-(define steven (make-character charY 0 0 (rectangle 20 80 "solid" "brown")))
+(define steven (make-character charY 0 0 (bitmap "Steven.png")))
 (define clearBoard (make-keyboard #f #f #f #f))
 
 ; Physics:

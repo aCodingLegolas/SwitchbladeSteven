@@ -15,7 +15,7 @@
 (require 2htdp/abstraction)
 
 ; Structures:
-(define-struct ugs [menu world character level objects keyboard])
+(define-struct ugs [menu world character level objects keyboard tockCounter])
 (define-struct character [y yVel temp image imageSelector move?])
 (define-struct object [x y image lethal])
 (define-struct menuButton [x y image highlighted? return])
@@ -33,21 +33,22 @@
 (define jumpStrength 5)
 (define maxFall 10)
 (define gravity 0.1)
+(define counter 0)
 
 ; Level-Definitions:
 ; Fritz's world
 (define world1.1 (make-ugs #f 1 steven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world1.2 (make-ugs #f 1 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world1.3 (make-ugs #f 1 steven 3
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world1Menu (make-ugs #t 1 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
@@ -65,20 +66,21 @@
                                                (square 100 "solid" "red")
                                                #f
                                                world1.3))
-                             clearBoard))
+                             clearBoard
+                             counter))
 ; Bergen's world
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world2.3 (make-ugs #f 2 steven 3
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world2Menu (make-ugs #t 2 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
@@ -96,20 +98,21 @@
                                                (square 100 "solid" "blue")
                                                #f
                                                world2.3))
-                             clearBoard))
+                             clearBoard
+                             counter))
 ; June's world
 (define world3.1 (make-ugs #f 3 steven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world3.2 (make-ugs #f 3 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world3.3 (make-ugs #f 3 steven 3
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard))
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
 (define world3Menu (make-ugs #t 3 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
@@ -127,7 +130,8 @@
                                                (square 100 "solid" "green")
                                                #f
                                                world3.3))
-                             clearBoard))
+                             clearBoard
+                             counter))
 ; Main menu
 (define mainMenu (make-ugs #t 0 steven 0
                              (list
@@ -146,7 +150,8 @@
                                                (square 100 "solid" "green")
                                                #f
                                                world3Menu))
-                             clearBoard))
+                             clearBoard
+                             counter))
 
 
 ;TEST GAME
@@ -168,7 +173,8 @@
                    lavaChar
                    1
                    (list object1 object2 enemy1)
-                   clearBoard))
+                   clearBoard
+                   counter))
 
 
 ;FUNCTIONS
@@ -182,7 +188,8 @@
                          thing
                          (ugs-level gs)
                          (ugs-objects gs)
-                         (ugs-keyboard gs))]
+                         (ugs-keyboard gs)
+                         counter)]
     [else gs]))
 
 
@@ -250,14 +257,15 @@
              (character-temp (ugs-character gs))
              (character-image (ugs-character gs))
              (character-imageSelector (ugs-character gs))
-             (if (and (key=? key "right") value) #true #false))
+             (if (or (and (key=? key "right") value) (and (key=? key " ") (not value))) #true #false))
             (ugs-level gs)
             (ugs-objects gs)
             (make-keyboard
              (if (key=? key " ") value (keyboard-space (ugs-keyboard gs)))
              (if (key=? key "left") value (keyboard-left (ugs-keyboard gs)))
              (if (key=? key "right") value (keyboard-right (ugs-keyboard gs)))
-             (if (key=? key "escape") value (keyboard-escape (ugs-keyboard gs))))))
+             (if (key=? key "escape") value (keyboard-escape (ugs-keyboard gs))))
+            (ugs-tockCounter gs)))
 
 ; Gamestate -> Gamestate --- Exits the world if menu-state == #f, backs up a level in menu-state,
 ;                             exists the game if were're in the mainMenu
@@ -265,7 +273,7 @@
   (if (ugs-menu gs)
       (if (> (ugs-world gs) 0)
           mainMenu
-          (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) '() clearBoard))
+          (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs) '() clearBoard counter))
       (cond
         [(equal? (ugs-world gs) 1) world1Menu]
         [(equal? (ugs-world gs) 2) world2Menu]
@@ -298,7 +306,8 @@
          (menuButton-image b)
          (if (overButton? x y b) #t #f)
          (menuButton-return b)))
-      clearBoard))
+      clearBoard
+      counter))
 
 ; (define-struct menuButton [x y image return])
 
@@ -334,28 +343,29 @@
    (character-move? (ugs-character gs)))
   (ugs-level gs)
   (ugs-objects gs)
-  (ugs-keyboard gs)))
+  (ugs-keyboard gs)
+  (ugs-tockCounter gs)))
 
 ; Animate Tock
 ; Character -> imageSelector
 ; Updates and returns the imageSelector of the input dude to determine which image will be rendered for animation
 
-(define (animateCharacter dude)
+(define (animateCharacter dude cntr)
   (if (character-move? dude)
-       (modulo (+ 1 (character-imageSelector dude)) (length (character-image dude)))
+       (modulo (if (= 1 (modulo cntr 4)) (+ 1 (character-imageSelector dude)) (character-imageSelector dude)) (length (character-image dude)))
        0))
 
-;(if (= 1 (modulo 28 (+ (character-imageSelector dude) 1))) (+ 1 (character-imageSelector dude)) (character-imageSelector dude)) ;POTENTIAL FIX FOR FAST MOVEMENT 
+ ;POTENTIAL FIX FOR FAST MOVEMENT 
 
 ; Character -> Character --- effects gravity on the world
 ; CURRENTLY, THIS IS FUNCTIONING AS THE MASTER CHARACTER TOCK...
-(define (gravityHappens char)
+(define (gravityHappens char cntr)
   (make-character
    (+ (character-y char) (character-yVel char))
    (if (<= (character-yVel char) maxFall) (+ (character-yVel char) gravity) (character-yVel char))
    (character-temp char)
    (character-image char)
-   (animateCharacter char)
+   (animateCharacter char cntr)
    (character-move? char)))
 
 
@@ -365,10 +375,11 @@
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
       (make-ugs (ugs-menu gs)
                 (ugs-world gs)
-                (gravityHappens (ugs-character gs))
+                (gravityHappens (ugs-character gs) (ugs-tockCounter gs))
                 (ugs-level gs)
                 (move gs)
                 (ugs-keyboard gs)
+                (+ 1 (ugs-tockCounter gs))
                 )))
 
 

@@ -257,7 +257,7 @@
              (character-temp (ugs-character gs))
              (character-image (ugs-character gs))
              (character-imageSelector (ugs-character gs))
-             (if (or (and (key=? key "right") value) (and (key=? key " ") (not value))) #true #false))
+             (if (keyboard-right (ugs-keyboard gs)) #true #false))
             (ugs-level gs)
             (ugs-objects gs)
             (make-keyboard
@@ -266,6 +266,8 @@
              (if (key=? key "right") value (keyboard-right (ugs-keyboard gs)))
              (if (key=? key "escape") value (keyboard-escape (ugs-keyboard gs))))
             (ugs-tockCounter gs)))
+
+;(or (key=? key "right") (and (key=? key "right") (key=? key " ")))
 
 ; Gamestate -> Gamestate --- Exits the world if menu-state == #f, backs up a level in menu-state,
 ;                             exists the game if were're in the mainMenu

@@ -375,14 +375,34 @@
 
 (define (tock gs)
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
+
+      ; Here is the collision functionality:
+      ;  If the next gs contains collision, then return a modified game-state wherein there is no collision
       (make-ugs (ugs-menu gs)
                 (ugs-world gs)
-                (gravityHappens (ugs-character gs) (ugs-tockCounter gs))
+                (place_char_based_on_object_collision gs)
                 (ugs-level gs)
                 (move gs)
                 (ugs-keyboard gs)
                 (+ 1 (ugs-tockCounter gs))
                 )))
+
+; Gamestate -> Gamestate
+; This function loops through the list of objects, and returns a modified gs if there's collision
+(define (place_char_based_on_object_collision gs)
+  (cond
+    [(>=
+      (-
+       (character-y (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+       (/ (image-height (first (character-image (ugs-character gs)))) 2))
+      (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+     (make-character
+      200 0
+      (character-temp (ugs-character gs))
+      (character-image (ugs-character gs))
+      (character-imageSelector (ugs-character gs))
+      (character-move? (ugs-character gs)))]
+    [else (gravityHappens (ugs-character gs) (ugs-tockCounter gs))]))
 
 
 ; Gamestate -> Gamestate --- moves the world forward

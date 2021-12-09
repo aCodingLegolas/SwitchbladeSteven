@@ -31,6 +31,7 @@
 (define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
 
+(define ENEMY1 (make-enemy 1700 300 (circle 50 "solid" "red") 10))
 ; Physics settings:
 (define jumpStrength 5)
 (define maxFall 10)
@@ -76,7 +77,8 @@
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)) clearBoard counter))
+                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)                            
+                            ENEMY1) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -169,7 +171,7 @@
                          (ugs-level gs)
                          (ugs-objects gs)
                          (ugs-keyboard gs)
-                         counter)]
+                         (ugs-tockCounter gs))]
     [else gs]))
 
 
@@ -224,7 +226,7 @@
 ;(or (key=? key "right") (and (key=? key "right") (key=? key " ")))
 
 ; Gamestate -> Gamestate --- Exits the world if menu-state == #f, backs up a level in menu-state,
-;                             exists the game if were're in the mainMenu
+;                             exits the game if were're in the mainMenu
 (define (escapeKey gs)
   (if (ugs-menu gs)
       (if (> (ugs-world gs) 0)
@@ -276,9 +278,10 @@
 ;(mouse=? "button-down" event)
 ; Gamestate -> Boolean --- evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
 (define (endWorld gs)
- (cond
-   [(collision (ugs-character gs) (ugs-objects gs)) #true]
-   [else #false]))
+; (cond
+ ;  [(collision (ugs-character gs) (ugs-objects gs)) #true]
+  ; [else #false])
+  gs)
 
 
 ;-----------------Tock Functions-----------------
@@ -363,13 +366,13 @@
 ; Gamestate -> Gamestate --- moves the world forward
 (define (move gs)
   (cond
-    [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) -)]
-    [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) +)]
+    [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-character gs) (ugs-objects gs) -)]
+    [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (moveHelper (ugs-character gs) (ugs-objects gs) +)]
     [else (ugs-objects gs)]))
    
 
 ; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
-(define (moveHelper loo direction)
+(define (moveHelper char loo direction)
   (cond
     [(empty? loo) '()]
     [else (cons (cond
@@ -378,18 +381,62 @@
                                            (object-y (first loo))
                                            (object-image (first loo))
                                            (object-lethal (first loo)))]
-                  ;[(enemy? (first loo)) (cond
-                  ;                       [(checkEnemyX (first loo)) (first loo)]
-                  ;                      [else (make-enemy
-                     ;                            (direction (enemy-x (first loo)) 2)
-                      ;                           (enemy-y (first loo))
-                       ;                          (enemy-image (first loo))
-                        ;                         (enemy-vel (first loo)))])]
+                  [(enemy? (first loo)) (cond
+                                         [(checkEnemyX (first loo)) (enemyAttack (first loo) char)]
+                                         [(enemyMissed? (first loo)) (enemyContinue (first loo))]
+                                         [else (make-enemy
+                                                (direction (enemy-x (first loo)) 2)
+                                                (enemy-y (first loo))
+                                                (enemy-image (first loo))
+                                                (enemy-vel (first loo)))])]
                   [else loo])
-                (moveHelper (rest loo) direction))]))
+                (moveHelper char (rest loo) direction))]))
 
 
-;(define-struct character [y yVel temp image])
+; check to see if the enemy has entered the world
+(define (checkEnemyX enemy)
+  (and (< (enemy-x enemy) (image-width mainB)) (> (enemy-x enemy) (+ 20 charX))))
+
+; if the enemy is on the screen and has not missed, attack the character
+(define (enemyAttack enemy char)
+  (make-enemy (- (enemy-x enemy) (closeInX enemy))
+              (- (enemy-y enemy) (closeInY enemy char))
+              (enemy-image enemy)
+              (enemy-vel enemy)))
+
+; calculate distance to move on x axis towards the character
+(define (closeInX enemy)
+  (* (- (enemy-x enemy) charX) .05))
+
+
+; calculate distance to move on y axis towards the character
+(define (closeInY enemy char)
+  (* (- (enemy-y enemy) (character-y char)) .05))
+
+
+; check to see if the enemy is in the world but has missed the character
+(define (enemyMissed? enemy)
+  (< (enemy-x enemy) (+ 10 charX)))
+
+
+; enemy continues direction off screen
+(define (enemyContinue enemy)
+  (make-enemy (- (enemy-x enemy) (fadeOutX enemy))
+              (- (enemy-y enemy) (fadeOutY enemy))
+              (enemy-image enemy)
+              (enemy-vel enemy)))
+
+
+; calculate distance to move on x axis to move enemy off screen
+(define (fadeOutX enemy)
+  (* (- (enemy-x enemy) (- 0 (image-width (enemy-image enemy)))) .05))
+
+
+; calculate distance to move on y axis to move enemy off screen
+(define (fadeOutY enemy)
+  (* (- (enemy-y enemy) (- (image-height mainB) (image-width (enemy-image enemy)))) .05))
+
+
 
 ; List-of-Objects, Image -> Image --- places all the objects in a list on the world background
 (define (renderAllObjects obj image)
@@ -409,7 +456,7 @@
                                        (enemy-x (first obj)) (enemy-y (first obj))
                                        (renderAllObjects (rest obj) image))]))
 
-
+;(renderAllObjects looe mainB)
 ; Gamestate -> Image
 ; takes a character and renders instructed images
 ; The directionSelector determines which render takes place: 0 for standing, 1 for front walking, 2 for back walking

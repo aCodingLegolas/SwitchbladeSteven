@@ -75,8 +75,9 @@
 
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)) clearBoard counter))
+                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)
+                            (make-object 300 400 (rectangle 100 300 "solid" "black") #f)
+                            ) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -275,10 +276,10 @@
 
 ;(mouse=? "button-down" event)
 ; Gamestate -> Boolean --- evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
-(define (endWorld gs)
- (cond
-   [(collision (ugs-character gs) (ugs-objects gs)) #true]
-   [else #false]))
+;(define (endWorld gs)
+ ;(cond
+  ; [(collision (ugs-character gs) (ugs-objects gs)) #true]
+   ;[else #false]))
 
 
 ;-----------------Tock Functions-----------------
@@ -334,7 +335,7 @@
       ;  If the next gs contains collision, then return a modified game-state wherein there is no collision
       (make-ugs (ugs-menu gs)
                 (ugs-world gs)
-                (place_char_based_on_object_collision gs)
+                (place_char_based_on_object_collision gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
                 (ugs-level gs)
                 (move gs)
                 (ugs-keyboard gs)
@@ -342,22 +343,26 @@
                 )))
 
 ; Gamestate -> Gamestate
-; This function loops through the list of objects, and returns a modified gs if there's collision
-(define (place_char_based_on_object_collision gs)
+; This function loops through the list of objects (for now just one), and returns a modified gs if there's collision
+(define (place_char_based_on_object_collision gs futureCharY)
   (cond
-    [(>=
-      ;(+
-      (character-y (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
-      ;(/ (image-height (first (character-image (ugs-character gs)))) 2))
-      (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
-     (ugs-character gs)]
-    ;(make-character
+    [(and
+      (>=
+       (+
+        (character-y futureCharY)
+        (/ (image-height (first (character-image (ugs-character gs)))) 2))
+       (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+      (<=
+       (abs (- (object-x (first (ugs-objects gs))) charX))
+       (/ (image-width (object-image (first (ugs-objects gs)))) 2)))
+      (ugs-character gs)]
+;(make-character
     ;200 0
     ;(character-temp (ugs-character gs))
     ;(character-image (ugs-character gs))
     ;(character-imageSelector (ugs-character gs))
     ;(character-move? (ugs-character gs)))]
-    [else (gravityHappens (ugs-character gs) (ugs-tockCounter gs))]))
+    [else futureCharY]))
 
 
 ; Gamestate -> Gamestate --- moves the world forward

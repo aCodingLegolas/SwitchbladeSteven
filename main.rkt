@@ -23,13 +23,15 @@
 (define-struct keyboard [space left right escape])
 
 ; Constants:
+;(define BACKGROUND (empty-scene 200 200))
 (define charY 200)
+(define charX 400)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define highlightImage (square 120 "solid" "black"))
 (define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
 
-; Physics:
+; Physics settings:
 (define jumpStrength 5)
 (define maxFall 10)
 (define gravity 0.1)
@@ -69,10 +71,12 @@
                              clearBoard
                              counter))
 ; Bergen's world
+; World 2.1 is where I'm doing my testing -JB
+
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter))
+                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -153,30 +157,6 @@
                              clearBoard
                              counter))
 
-
-;TEST GAME
-(define BACKGROUND (empty-scene 200 200))
-(define HEIGHT (image-height BACKGROUND))
-(define WIDTH (image-height BACKGROUND))
-(define CHARACTER_X (/ (image-width BACKGROUND) 2))
-(define lavaCharShape (circle 10 "solid" "orange"))
-(define lavaChar (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
-(define objImg (circle 10 "solid" "green"))
-(define objImg2 (square 10 "solid" "green"))
-(define object1 (make-object 50 50 objImg #false))
-(define object2 (make-object 150 150 objImg2 #false))
-(define enImg1 (circle 12 "solid" "black"))
-(define enemy1 (make-enemy 320 20 enImg1 5))
-(define testState (make-ugs
-                   #false
-                   1
-                   lavaChar
-                   1
-                   (list object1 object2 enemy1)
-                   clearBoard
-                   counter))
-
-
 ;FUNCTIONS
 
 ; helper function to make a gamestate
@@ -203,34 +183,8 @@
 (define (level-up gs bool)
   gs)
 
-; Mouse-event,Gamestate -> Gamestate
-; selects the world theme and character and returns the appropiate gamestate
-(define (choose-world gs x y me)
-  gs)
-
-; Gamestate -> Gamestate
-;(define (jump gs)
- ; (if (= (character-y (ugs-character gs)) HEIGHT)           !!!! idk maybe delete this
-  ;    gs
-   ;   (makeGS gs
-    ;     (make-character
-     ;     (- (character-y (ugs-character gs)) 2)
-      ;    (character-temp (ugs-character gs))
-       ;   (character-image (ugs-character gs))))))
-
-(define (checkEnemyX en)
-  (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
-
-; Gamestate -> Boolean --- Checks for collision between the character and any given object in the world
-(define (collision char object)
-  #false)
-
-;adjust-char
-; Gamestate -> Gamestate
-; Moves the character ontop of the "floor" if the amount of collision is less than the tolerated amount.
-; (define (adjust-char gs char) gs char)
-(define (adjust-char gs char)
-  gs)
+;(define (checkEnemyX en)
+ ; (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
 
 ; Gamestate -> Gamestate --- Kills the character if the gamestate is such that the character deserves a slow and painful death
 (define (killChar gs)
@@ -286,8 +240,8 @@
 (define (onMouse gs x y event)
   (if (ugs-menu gs) ; Check for menu-state
       (if (mouse=? "button-down" event)
-      (loadWorld gs x y)
-      (highlightButton gs x y))
+          (loadWorld gs x y)
+          (highlightButton gs x y))
       gs)) ; Return unmodified game-state by default
 
 ; Returns the world value of the button
@@ -301,15 +255,15 @@
 ; This returns an updated list depending on collision between on-mouse x&y and the menuButtons
 (define (highlightButton gs x y)
   (make-ugs (ugs-menu gs) (ugs-world gs) (ugs-character gs) (ugs-level gs)
-      (for/list ([b (ugs-objects gs)])
-        (make-menuButton
-         (menuButton-x b)
-         (menuButton-y b)
-         (menuButton-image b)
-         (if (overButton? x y b) #t #f)
-         (menuButton-return b)))
-      clearBoard
-      counter))
+            (for/list ([b (ugs-objects gs)])
+              (make-menuButton
+               (menuButton-x b)
+               (menuButton-y b)
+               (menuButton-image b)
+               (if (overButton? x y b) #t #f)
+               (menuButton-return b)))
+            clearBoard
+            counter))
 
 ; (define-struct menuButton [x y image return])
 
@@ -392,25 +346,26 @@
 (define (place_char_based_on_object_collision gs)
   (cond
     [(>=
-      (-
-       (character-y (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
-       (/ (image-height (first (character-image (ugs-character gs)))) 2))
+      ;(+
+      (character-y (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+      ;(/ (image-height (first (character-image (ugs-character gs)))) 2))
       (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
-     (make-character
-      200 0
-      (character-temp (ugs-character gs))
-      (character-image (ugs-character gs))
-      (character-imageSelector (ugs-character gs))
-      (character-move? (ugs-character gs)))]
+     (ugs-character gs)]
+    ;(make-character
+    ;200 0
+    ;(character-temp (ugs-character gs))
+    ;(character-image (ugs-character gs))
+    ;(character-imageSelector (ugs-character gs))
+    ;(character-move? (ugs-character gs)))]
     [else (gravityHappens (ugs-character gs) (ugs-tockCounter gs))]))
 
 
 ; Gamestate -> Gamestate --- moves the world forward
 (define (move gs)
   (cond
-        [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) -)]
-        [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) +)]
-        [else (ugs-objects gs)]))
+    [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) -)]
+    [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (moveHelper (ugs-objects gs) +)]
+    [else (ugs-objects gs)]))
    
 
 ; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
@@ -423,13 +378,13 @@
                                            (object-y (first loo))
                                            (object-image (first loo))
                                            (object-lethal (first loo)))]
-                  [(enemy? (first loo)) (cond
-                                          [(checkEnemyX (first loo)) (first loo)]
-                                          [else (make-enemy
-                                                 (direction (enemy-x (first loo)) 2)
-                                                 (enemy-y (first loo))
-                                                 (enemy-image (first loo))
-                                                 (enemy-vel (first loo)))])]
+                  ;[(enemy? (first loo)) (cond
+                  ;                       [(checkEnemyX (first loo)) (first loo)]
+                  ;                      [else (make-enemy
+                     ;                            (direction (enemy-x (first loo)) 2)
+                      ;                           (enemy-y (first loo))
+                       ;                          (enemy-image (first loo))
+                        ;                         (enemy-vel (first loo)))])]
                   [else loo])
                 (moveHelper (rest loo) direction))]))
 
@@ -461,7 +416,7 @@
 ; The imageSelector determines which image to render
 (define (characterRender gs)
   (place-image (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs)))
-               CHARACTER_X
+               charX
                (character-y (ugs-character gs))
                (renderAllObjects (ugs-objects gs) mainB)))
 

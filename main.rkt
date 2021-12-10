@@ -339,7 +339,10 @@
       ;  If the next gs contains collision, then return a modified game-state wherein there is no collision
       (make-ugs (ugs-menu gs)
                 (ugs-world gs)
-                (place_char_based_on_object_collision gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+                (if
+                 (char_object_collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+                 (ugs-character gs)
+                 (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
                 (ugs-level gs)
                 (move gs)
                 (ugs-keyboard gs)
@@ -348,25 +351,36 @@
 
 ; Gamestate -> Gamestate
 ; This function loops through the list of objects (for now just one), and returns a modified gs if there's collision
-(define (place_char_based_on_object_collision gs futureCharY)
+(define (char_object_collision? gs futureCharY)
   (cond
-    [(and
-      (>=
-       (+
-        (character-y futureCharY)
-        (/ (image-height (first (character-image (ugs-character gs)))) 2))
-       (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
-      (<=
-       (abs (- (object-x (first (ugs-objects gs))) charX))
-       (/ (image-width (object-image (first (ugs-objects gs)))) 2)))
-      (ugs-character gs)]
-;(make-character
-    ;200 0
-    ;(character-temp (ugs-character gs))
+    [(empty? (ugs-objects gs)) #f]
+    [else
+     (or
+      (and
+       (>=
+        (+
+         (character-y futureCharY)
+         (/ (image-height (first (character-image (ugs-character gs)))) 2))
+        (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+       (<=
+        (abs (- (object-x (first (ugs-objects gs))) charX))
+        (/ (image-width (object-image (first (ugs-objects gs)))) 2)))
+      (char_object_collision?
+       (make-ugs
+        (ugs-menu gs)
+        (ugs-world gs)
+        (ugs-character gs)
+        (ugs-level gs)
+        (filter object? (rest (ugs-objects gs)))
+        (ugs-keyboard gs)
+        (ugs-tockCounter gs)) futureCharY))]))
+    ;(make-character
+;200 0
+;(character-temp (ugs-character gs))
     ;(character-image (ugs-character gs))
     ;(character-imageSelector (ugs-character gs))
     ;(character-move? (ugs-character gs)))]
-    [else futureCharY]))
+
 
 
 ; Gamestate -> Gamestate --- moves the world forward

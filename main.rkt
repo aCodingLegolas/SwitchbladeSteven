@@ -27,6 +27,8 @@
 (define charY 200)
 (define charX 400)
 (define mainB (rectangle 1400 700 "solid" "white"))
+(define iceB (bitmap "iceWorld.png"))
+(define lavaB (bitmap "lavaWorld.png"))
 (define highlightImage (square 120 "solid" "black"))
 (define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
@@ -143,12 +145,12 @@
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "red")
+                                               (bitmap "iceIcon.png")
                                                #f
                                                world1Menu)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "blue")
+                                               (bitmap "lavaIcon.png")
                                                #f
                                                world2Menu)
                               (make-menuButton (* (image-width mainB) 3/4)
@@ -469,12 +471,21 @@
   (place-image (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs)))
                charX
                (character-y (ugs-character gs))
-               (renderAllObjects (ugs-objects gs) mainB)))
+               (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
+
+; World -> Image
+; Takes the current world indicator and returns the appropriate image
+(define (worldDeterminer wrld)
+  (cond
+    [(= wrld 0) mainB]
+    [(= wrld 1) iceB]
+    [(= wrld 2) lavaB]
+    [(= wrld 3) mainB])) ;wrld 3 should be something else once an image is drawn for this world
 
 ; Gamestate -> Image --- Renders the entire game-state:
 (define (masterRender gs)
   (if (ugs-menu gs) ;Don't render the character in menu-state
-      (renderAllObjects (ugs-objects gs) mainB)
+      (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))
       (characterRender gs)))
 
 (define (stop gs)

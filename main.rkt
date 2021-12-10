@@ -327,12 +327,47 @@
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
       (make-ugs (ugs-menu gs)
                 (ugs-world gs)
+<<<<<<< Updated upstream
                 (gravityHappens (ugs-character gs))
                 (ugs-level gs)
                 (move gs)
                 (ugs-keyboard gs)
                 ))) 
   
+=======
+                (place_char_based_on_object_collision gs (ugs-objects gs) (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+                (ugs-level gs)
+                (move gs)
+                (ugs-keyboard gs)
+                (+ 1 (ugs-tockCounter gs))
+                )))
+
+; Gamestate -> Gamestate
+; This function loops through the list of objects (for now just one), and returns a modified gs if there's collision
+(define (place_char_based_on_object_collision gs obs futureCharY)
+  (cond
+    [(empty? (ugs-objects gs)) #f]
+    [(or
+      (and
+       (>=
+        (+
+         (character-y futureCharY)
+         (/ (image-height (first (character-image (ugs-character gs)))) 2))
+        (- (object-y (first obs)) (/ (image-height (object-image (first obs))) 2)))
+       (<=
+        (abs (- (object-x (first obs)) charX))
+        (/ (image-width (object-image (first obs))) 2)))
+      (place_char_based_on_object_collision gs (rest obs) futureCharY))
+     (ugs-character gs)]
+    ;(make-character
+    ;200 0
+    ;(character-temp (ugs-character gs))
+    ;(character-image (ugs-character gs))
+    ;(character-imageSelector (ugs-character gs))
+    ;(character-move? (ugs-character gs)))]
+    [else futureCharY]))
+
+>>>>>>> Stashed changes
 
 ; Gamestate -> Gamestate --- moves the world forward
 (define (move gs)

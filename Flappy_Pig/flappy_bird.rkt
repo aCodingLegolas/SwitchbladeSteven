@@ -62,8 +62,8 @@
   (make-bird 
    (+ (bird-vel (game-bird gs)) (bird-y (game-bird gs)))
    (cond
-     [(>= (bird-vel (game-bird gs)) 15) (bird-vel (game-bird gs))]
-     [else (+ (bird-vel (game-bird gs)) 0.5)])))
+     [(>= (bird-vel (game-bird gs)) 10) (bird-vel (game-bird gs))]
+     [else (+ (bird-vel (game-bird gs)) 1)])))
 
 (define (build_random_gate gg seed)
   (make-gate
@@ -149,11 +149,42 @@
 
 (define (main gs)
   (big-bang gs
-    (to-draw render)
+    (to-draw render) 
     (on-tick tock)
     (on-key lift)
-    (stop-when collision)))
+    (stop-when collision)
+    ))
+fdgk;ajkl dfsh
 
+;asdfj iEWS'dsaflijd LKS'DJ RH'DFH as'ldj flu wSDz
+rfjw
+d opjt[ofa jsmdi tkf  wes'i dzr uf
+           westj
+           zfd
+           w ksJt p
+           z;awrs
+           lir'v s3
+           oivLK 24 IRAS'DJKF 'JALIWR DX'ILT VLIHAER
+           IHDTX
+           PD
+           aerts dxg
+           wr
+           tistd g
+           os
+           ewszrc q
+           ea[t s,[
+                   qe
+                   [r 'uilvac; qea'stkd ji 'kl szxkj jkl'wd
+                       sf
+                        E
+                        ODFTks.fdagv a'ldjxf'l k aegrj'ksdftea:A
+                        Gsd lkgl;ked gl'sap
+                        Df o
+                        adGX
+                         aosd
+                         ZRgaen
+                         Sdzxf g
+                         ]]]]
 (define start (make-game
                (make-bird 500 10)
                (make-gates
@@ -163,6 +194,15 @@
                 (make-gate -100 700 1700)
                 )
                0))
+(define (dfonfdsf dsfsd
+
+                  sdflldsfdsfdsf
+                  fs
+                  (cond
+                    [(empty? (list '() '()
+
+                                   ))]
+      )))
 
 
 (main start)

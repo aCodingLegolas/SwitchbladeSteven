@@ -78,8 +78,8 @@
 
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
-                            (make-object 300 400 (rectangle 100 300 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)
+                            (make-object 600 600 (rectangle 100 300 "solid" "black") #f)
+                            (make-object 800 700 (rectangle 1000 100 "solid" "green") #f)
                             ENEMY1
                             ) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
@@ -342,7 +342,7 @@
                 (ugs-world gs)
                 (affect_char gs)
                 (ugs-level gs)
-                (affect_loo gs (filter object? (move gs)))
+                (affectLoo gs (filter object? (move gs)) (affect_char gs))
                 (ugs-keyboard gs)
                 (+ 1 (ugs-tockCounter gs))
                 )))
@@ -387,23 +387,37 @@
     ;(character-move? (ugs-character gs)))]
 
 ; This function returns a list of objects that is either moved or not, depending on collision
-(define (affect_loo gs moved_loo)
+(define (affectLoo gs movedLoo futureChar)
   (if
-
+   (and
     
     ; The x-axis collision of objects and the char
-    (>= 
-     ; The right-side of the char hit-box (Char-x + half of the image width)
-     (+ charX (/ (image-width (first (character-image (ugs-character gs)))) 2))
+    (and
 
-     ; The left-side of the first object (ob-x - half the image width)
-     (- (object-x (first moved_loo)) (/ (image-width (first moved_loo)) 2))
+     ; Right-edge-char is greater than the left-edge-object
+     (>= 
+      ; The right-side of the char hit-box (Char-x + half of the image width)
+      (+ charX (/ (image-width (first (character-image futureChar))) 2))
 
-     ; The y-axis collision of objects and the char
-     ycol
+      ; The left-side of the first object (ob-x - half the image width)
+      (- (object-x (first movedLoo)) (/ (image-width (object-image (first movedLoo))) 2)))
+
+     ; Left-edge-char is less than the right-edge-object
+     (<=
+      (- charX (/ (image-width (first (character-image futureChar))) 2))
+      (+ (object-x (first movedLoo)) (/ (image-width (object-image (first movedLoo))) 2))))
+
+    ; The y-axis collision of objects and the char
+    (>=
+     ; The bottem of the char hit-box (Char-y + half the image height)
+     (+ (character-y futureChar) (/ (image-height (first (character-image futureChar))) 2))
+
+     ; The top of the first object (ob-y - half the image height)
+     (- (object-y (first movedLoo)) (/ (image-height (object-image (first movedLoo))) 2))
      )
+    )
    (ugs-objects gs) ; Don't move the objects
-   moved_loo))      ; Move the objects
+   movedLoo))      ; Move the objects
    
 
 ; Gamestate -> Gamestate --- moves the world forward

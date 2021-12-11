@@ -354,7 +354,13 @@
 (define (affect_char gs)
   (if
    (char_object_collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
-   (ugs-character gs)
+   (make-character
+    (character-y (ugs-character gs))
+    0
+    (character-temp (ugs-character gs))
+    (character-image (ugs-character gs))
+    (character-imageSelector (ugs-character gs))
+    (character-move? (ugs-character gs)))
    (gravityHappens (ugs-character gs) (ugs-tockCounter gs))))
 
 ; Gamestate -> Gamestate
@@ -379,7 +385,7 @@
          (-
           (character-y futureCharY)
           (/ (image-height (first (character-image (ugs-character gs)))) 2))
-         (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+         (+ (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
         )
         
        (<=

@@ -78,8 +78,8 @@
 
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
-                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)
                             (make-object 300 400 (rectangle 100 300 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 1000 100 "solid" "green") #f)
                             ENEMY1) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
@@ -339,15 +339,19 @@
       ;  If the next gs contains collision, then return a modified game-state wherein there is no collision
       (make-ugs (ugs-menu gs)
                 (ugs-world gs)
-                (if
-                 (char_object_collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
-                 (ugs-character gs)
-                 (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+                (affect_char gs)
                 (ugs-level gs)
                 (move gs)
                 (ugs-keyboard gs)
                 (+ 1 (ugs-tockCounter gs))
                 )))
+
+; This function returns the character with either a change in y-position or no change
+(define (affect_char gs)
+  (if
+   (char_object_collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))
+   (ugs-character gs)
+   (gravityHappens (ugs-character gs) (ugs-tockCounter gs))))
 
 ; Gamestate -> Gamestate
 ; This function loops through the list of objects (for now just one), and returns a modified gs if there's collision

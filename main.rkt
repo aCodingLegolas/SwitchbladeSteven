@@ -78,10 +78,12 @@
 
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
-                            (make-object 600 600 (rectangle 100 300 "solid" "black") #f)
-                            (make-object 800 700 (rectangle 1000 100 "solid" "green") #f)
-                            ENEMY1
-                            ) clearBoard counter))
+                            (make-object 600 700 (rectangle 1000 30 "solid" "black") #f)
+                            (make-object 1000 200 (square 100 "solid" "black") #f)
+                            (make-object 1600 550 (rectangle 1000 50 "solid" "black") #f)
+                            (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
+                            (make-object 3000 6500 (square 100 "solid" "black") #f)
+                            ENEMY1) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -335,17 +337,18 @@
 
 (define (tock gs)
   (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
+      (returnNextWorld gs)))
 
-      ; Here is the collision functionality:
-      ;  If the next gs contains collision, then return a modified game-state wherein there is no collision
-      (make-ugs (ugs-menu gs)
+; I moved everything into a secondary function so that we can add parameters as needed
+(define (returnNextWorld gs)
+  (make-ugs (ugs-menu gs)
                 (ugs-world gs)
                 (affect_char gs)
                 (ugs-level gs)
                 (affectLoo gs (filter object? (move gs)) (affect_char gs))
                 (ugs-keyboard gs)
                 (+ 1 (ugs-tockCounter gs))
-                )))
+                ))
 
 ; This function returns the character with either a change in y-position or no change
 (define (affect_char gs)
@@ -362,17 +365,27 @@
     [else
      (or
       (and
-       
-       (>=
-        (+
-         (character-y futureCharY)
-         (/ (image-height (first (character-image (ugs-character gs)))) 2))
-        (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
-       
+       (and
+
+        ; Bottem of char is lower than the top of ob
+        (>=
+         (+
+          (character-y futureCharY)
+          (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+
+        ; Top of char is higher than bottem of ob
+        (<=
+         (-
+          (character-y futureCharY)
+          (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+        )
+        
        (<=
         (abs (- (object-x (first (ugs-objects gs))) charX))
-        (/ (image-width (object-image (first (ugs-objects gs)))) 2)))
-
+        (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26)))
+      ; hehehe graphical hard-coding with that 26 to eliminate a falling bug
       ; Recursion
       (char_object_collision?
        (make-ugs
@@ -386,36 +399,54 @@
 
 ; This function returns a list of objects that is either moved or not, depending on collision
 (define (affectLoo gs movedLoo futureChar)
-  (if
-   (and
+  (if (objectMoveCollision? gs movedLoo futureChar)
+      (ugs-objects gs)
+      movedLoo))
+
+(define (objectMoveCollision? gs movedLoo futureChar)
+  (cond
+    [(empty? movedLoo) #f]
+    [else
+     (or
+      (and
     
-    ; The x-axis collision of objects and the char
-    (and
+       ; The x-axis collision of objects and the char
+       (and
 
-     ; Right-edge-char is greater than the left-edge-object
-     (>= 
-      ; The right-side of the char hit-box (Char-x + half of the image width)
-      (+ charX (/ (image-width (first (character-image futureChar))) 2))
+        ; Right-edge-char is greater than the left-edge-object
+        (>= 
+         ; The right-side of the char hit-box (Char-x + half of the image width)
+         (+ charX (/ (image-width (first (character-image futureChar))) 2))
 
-      ; The left-side of the first object (ob-x - half the image width)
-      (- (object-x (first movedLoo)) (/ (image-width (object-image (first movedLoo))) 2)))
+         ; The left-side of the first object (ob-x - half the image width)
+         (- (object-x (first movedLoo)) (/ (image-width (object-image (first movedLoo))) 2)))
 
-     ; Left-edge-char is less than the right-edge-object
-     (<=
-      (- charX (/ (image-width (first (character-image futureChar))) 2))
-      (+ (object-x (first movedLoo)) (/ (image-width (object-image (first movedLoo))) 2))))
+        ; Left-edge-char is less than the right-edge-object
+        (<=
+         (- charX (/ (image-width (first (character-image futureChar))) 2))
+         (+ (object-x (first movedLoo)) (/ (image-width (object-image (first movedLoo))) 2))))
 
-    ; The y-axis collision of objects and the char
-    (>=
-     ; The bottem of the char hit-box (Char-y + half the image height)
-     (+ (character-y futureChar) (/ (image-height (first (character-image futureChar))) 2))
+       ; The y-axis collision of objects and the char
+       (and
+        ; The bottem of the char is lower than the top of the object
+        (>=
+         ; The bottem of the char hit-box (Char-y + half the image height)
+         (+ (character-y futureChar) (/ (image-height (first (character-image futureChar))) 2))
 
-     ; The top of the first object (ob-y - half the image height)
-     (- (object-y (first movedLoo)) (/ (image-height (object-image (first movedLoo))) 2))
-     )
-    )
-   (ugs-objects gs) ; Don't move the objects
-   movedLoo))      ; Move the objects
+         ; The top of the first object (ob-y - half the image height)
+         (- (object-y (first movedLoo)) (/ (image-height (object-image (first movedLoo))) 2)))
+
+        ; The top of the char is higher than the bottem of the object
+        (<=
+         ; The top of the char hitbox (Char-y + half the image height)
+         (- (character-y futureChar) (/ (image-height (first (character-image futureChar))) 2))
+
+         ; The bottem of the object hitbox (ob-y - half the image height)
+         (+ (object-y (first movedLoo)) (/ (image-height (object-image (first movedLoo))) 2))
+        
+        )))
+       (objectMoveCollision? gs (rest movedLoo) futureChar))
+      ]))
    
 
 ; Gamestate -> Gamestate --- moves the world forward
@@ -437,13 +468,13 @@
                                            (object-image (first loo))
                                            (object-lethal (first loo)))]
                   [(enemy? (first loo)) (cond
-                                         [(checkEnemyX (first loo)) (enemyAttack (first loo) char)]
-                                         [(enemyMissed? (first loo)) (enemyContinue (first loo))]
-                                         [else (make-enemy
-                                                (direction (enemy-x (first loo)) 2)
-                                                (enemy-y (first loo))
-                                                (enemy-image (first loo))
-                                                (enemy-vel (first loo)))])]
+                                          [(checkEnemyX (first loo)) (enemyAttack (first loo) char)]
+                                          [(enemyMissed? (first loo)) (enemyContinue (first loo))]
+                                          [else (make-enemy
+                                                 (direction (enemy-x (first loo)) 2)
+                                                 (enemy-y (first loo))
+                                                 (enemy-image (first loo))
+                                                 (enemy-vel (first loo)))])]
                   [else loo])
                 (moveHelper char (rest loo) direction))]))
 

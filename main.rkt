@@ -26,14 +26,26 @@
 ;(define BACKGROUND (empty-scene 200 200))
 (define charY 200)
 (define charX 400)
+(define endWorldX -500)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
 (define highlightImage (square 120 "solid" "black"))
 (define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
-
 (define ENEMY1 (make-enemy 1700 300 (circle 50 "solid" "red") 10))
+
+; temporary level up buttons
+(define levelUpText (text "You completed this level!\nLevel up?       Yes" 24 "white"))
+(define levelUpImage (overlay levelUpText
+                              (rectangle 300 100 "solid" "blue")))
+(define levelUpButton (make-menuButton charX (/ (image-height mainB) 2) levelUpImage #false world2.3))
+
+
+(define completedWorldText (text "Congratulations! \nYou've completed this world." 24 "white"))
+(define completedWorldImage (overlay completedWorldText
+                              (rectangle 300 100 "solid" "blue")))
+(define completedWorldButton (make-menuButton charX (/ (image-height mainB) 2) completedWorldImage #false mainMenu))
 ; Physics settings:
 (define jumpStrength 5)
 (define maxFall 10)
@@ -180,22 +192,7 @@
     [else gs]))
 
 
-;Gamestate -> Boolean
-(define (complete-level gs)
-  gs)
 
-; Gamestate, Boolean -> Gamestate
-; increases the level of the gamestate after a player completes a level
-; or calls a function to end the world if the levels are all completed
-(define (level-up gs bool)
-  gs)
-
-;(define (checkEnemyX en)
- ; (if (and (< (enemy-x en) WIDTH) (> (enemy-x en) 0)) #true #false))
-
-; Gamestate -> Gamestate --- Kills the character if the gamestate is such that the character deserves a slow and painful death
-(define (killChar gs)
-  gs)
 
 ; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onKey gs key)
@@ -336,8 +333,28 @@
 ;-----------------MASTER TOCKS------------------
 
 (define (tock gs)
-  (if (ugs-menu gs) gs  ;Don't move anything if we're in the menu
-      (returnNextWorld gs)))
+  (cond
+    [(ugs-menu gs) gs] ;Don't move anything if we're in the menu
+    [(levelUp? gs) (lastLevel? gs)]
+    [else (returnNextWorld gs)]))
+
+
+; check to see if the player has reached the end of the world
+(define (levelUp? gs)
+  (= (object-x (first (ugs-objects gs))) endWorldX))
+
+
+; Gamestate -> Gamestate --- Kills the character if the gamestate is such that the character deserves a slow and painful death
+(define (killChar gs)
+  gs)
+
+; checks whether player completed level or world
+(define (lastLevel? gs)
+  (if (= (ugs-level gs) 3)
+      (make-ugs #t (ugs-world gs) (ugs-character gs) (ugs-level gs) (list completedWorldButton) (ugs-keyboard gs) (ugs-tockCounter gs)) ;return Completed World Image
+      (make-ugs #t (ugs-world gs) (ugs-character gs) (+ 1 (ugs-level gs)) (list levelUpButton) (ugs-keyboard gs) (ugs-tockCounter gs)) ;return Level Up? option
+      ))
+
 
 ; I moved everything into a secondary function so that we can add parameters as needed
 (define (returnNextWorld gs)

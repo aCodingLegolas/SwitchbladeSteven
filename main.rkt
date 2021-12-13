@@ -33,7 +33,6 @@
 (define highlightImage (square 120 "solid" "black"))
 (define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
-(define ENEMY1 (make-enemy 1000 300 (circle 50 "solid" "red") 10))
 
 
 ; Physics settings:
@@ -85,7 +84,7 @@
                             (make-object 1600 550 (rectangle 1000 50 "solid" "black") #f)
                             (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
                             (make-object 3000 6500 (square 100 "solid" "black") #f)
-                            ENEMY1) clearBoard counter))
+                            (make-enemy 1000 300 (circle 50 "solid" "red") 10)) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -351,7 +350,21 @@
 
 ; Gamestate -> Gamestate --- Kills the character if the gamestate is such that the character deserves a slow and painful death
 (define (killChar gs)
-  gs)
+  (if (deathCollision? (ugs-objects gs) (ugs-character gs))
+      (make-ugs (ugs-menu gs) (ugs-world gs) DEADCHARACTER (ugs-level gs) (ugs-objects gs) (ugs-keyboard gs) (ugs-tockCounter gs))
+      gs))
+
+; List-of-Objects, Character -> Boolean
+; check if there is a collision with a lethal object
+(define (deathCollision? loo char)
+  (cond
+    [(object-lethal (first loo)) (collision? (first loo) char)]
+    [else (deathCollision? (rest loo char))]))
+
+; Object, Character -> Boolean
+; check to see if the characater collides with an object
+(define (collision? obj char)
+  (< (abs (- (object-x obj) (+ (/ (image-width (character-image char)) 2) charX))) 2))
 
 ; checks whether player completed level or world
 (define (lastLevel? gs)
@@ -431,6 +444,7 @@
       (ugs-objects gs)
       movedLoo))
 
+; what does this function do?
 (define (objectMoveCollision? gs movedLoo futureChar)
   (cond
     [(empty? movedLoo) #f]

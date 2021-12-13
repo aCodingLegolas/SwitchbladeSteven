@@ -26,7 +26,7 @@
 ;(define BACKGROUND (empty-scene 200 200))
 (define charY 200)
 (define charX 400)
-(define endWorldX -1500)
+(define endLevelX -1500)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
@@ -93,7 +93,8 @@
                             (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
                             (make-object 3000 6500 (square 100 "solid" "black") #f)
                             (make-object 1500 250 (square 100 "solid" "red") #t)
-                            (make-enemy 1000 400 (circle 50 "solid" "red") 10)) clearBoard counter))
+                            (make-enemy 1000 400 (circle 50 "solid" "red") 10)
+                            ) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -179,7 +180,14 @@
 (define levelUpText (text "You completed this level!\nLevel up?       Yes" 24 "white"))
 (define levelUpImage (overlay levelUpText
                               (rectangle 300 100 "solid" "blue")))
-(define levelUpButton (make-menuButton charX (/ (image-height mainB) 2) levelUpImage #false world2.3))
+
+; create menu button for the end of a level with the return value of the next level
+(define (makeLevelUpButton world level)
+  (make-menuButton charX (/ (image-height mainB) 2) levelUpImage #false
+                   (make-ugs #f world steven level
+                           (list
+                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
+                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter)))
 
 
 (define completedWorldText (text "Congratulations! \nYou've completed this world." 24 "white"))
@@ -333,14 +341,14 @@
 
 ; check to see if the player has reached the end of the world
 (define (levelUp? gs)
-  (= (object-x (first (ugs-objects gs))) endWorldX))
+  (= (object-x (first (ugs-objects gs))) endLevelX))
 
 
 ; checks whether player completed level or world
 (define (lastLevel? gs)
   (if (= (ugs-level gs) 3)
       (make-ugs #t (ugs-world gs) (ugs-character gs) (ugs-level gs) (list completedWorldButton) (ugs-keyboard gs) (ugs-tockCounter gs)) ;return Completed World Image
-      (make-ugs #t (ugs-world gs) (ugs-character gs) (+ 1 (ugs-level gs)) (list levelUpButton) (ugs-keyboard gs) (ugs-tockCounter gs)) ;return Level Up? option
+      (make-ugs #t (ugs-world gs) (ugs-character gs) (ugs-level gs) (list (makeLevelUpButton (ugs-world gs) (+ 1 (ugs-level gs)))) (ugs-keyboard gs) (ugs-tockCounter gs)) ;return Level Up? option
       ))
 
 
@@ -614,7 +622,7 @@
        ;(< (abs (- (- (object-y obj) (/ (image-height (object-image obj)) 2))
                  ; (+ (character-y char) (/ (image-height (list-ref (character-image char) (character-imageSelector char))) 2)))) 10)))
     [(enemy? obj)
-     (< (abs (- (- (enemy-x obj) (/ (image-width (object-image obj)) 2))
+     (< (abs (- (- (enemy-x obj) (/ (image-width (enemy-image obj)) 2))
                   (+ charX (/ (image-width (list-ref (character-image char) (character-imageSelector char))) 2)))) 50)]))
 
 

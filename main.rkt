@@ -76,8 +76,17 @@
 ; Bergen's world
 (define world2.1 (make-ugs #f 2 fakeSteven 1
                            (list
+<<<<<<< Updated upstream
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
                             (make-object 500 500 (rectangle 1500 5 "solid" "green") #f)) clearBoard))
+=======
+                            (make-object 600 670 (rectangle 1000 30 "solid" "black") #f)
+                            (make-object 1000 200 (square 100 "solid" "black") #f)
+                            (make-object 1600 550 (rectangle 1000 50 "solid" "black") #f)
+                            (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
+                            (make-object 3000 6500 (square 100 "solid" "black") #f)
+                            ENEMY1) clearBoard counter))
+>>>>>>> Stashed changes
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)

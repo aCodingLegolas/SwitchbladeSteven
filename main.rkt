@@ -26,26 +26,16 @@
 ;(define BACKGROUND (empty-scene 200 200))
 (define charY 200)
 (define charX 400)
-(define endWorldX -500)
+(define endWorldX -1500)
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
 (define highlightImage (square 120 "solid" "black"))
 (define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
-(define ENEMY1 (make-enemy 1700 300 (circle 50 "solid" "red") 10))
-
-; temporary level up buttons
-(define levelUpText (text "You completed this level!\nLevel up?       Yes" 24 "white"))
-(define levelUpImage (overlay levelUpText
-                              (rectangle 300 100 "solid" "blue")))
-(define levelUpButton (make-menuButton charX (/ (image-height mainB) 2) levelUpImage #false world2.3))
+(define ENEMY1 (make-enemy 1000 300 (circle 50 "solid" "red") 10))
 
 
-(define completedWorldText (text "Congratulations! \nYou've completed this world." 24 "white"))
-(define completedWorldImage (overlay completedWorldText
-                              (rectangle 300 100 "solid" "blue")))
-(define completedWorldButton (make-menuButton charX (/ (image-height mainB) 2) completedWorldImage #false mainMenu))
 ; Physics settings:
 (define jumpStrength 5)
 (define maxFall 10)
@@ -175,6 +165,21 @@
                                                world3Menu))
                              clearBoard
                              counter))
+
+
+; temporary level up buttons
+(define levelUpText (text "You completed this level!\nLevel up?       Yes" 24 "white"))
+(define levelUpImage (overlay levelUpText
+                              (rectangle 300 100 "solid" "blue")))
+(define levelUpButton (make-menuButton charX (/ (image-height mainB) 2) levelUpImage #false world2.3))
+
+
+(define completedWorldText (text "Congratulations! \nYou've completed this world." 24 "white"))
+(define completedWorldImage (overlay completedWorldText
+                              (rectangle 300 100 "solid" "blue")))
+(define completedWorldButton (make-menuButton charX (/ (image-height mainB) 2) completedWorldImage #false mainMenu))
+
+
 
 ;FUNCTIONS
 

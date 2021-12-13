@@ -31,7 +31,15 @@
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
 (define highlightImage (square 120 "solid" "black"))
-(define steven (make-character charY 0 2 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
+(define steven (make-character charY 0 2 0 (list (bitmap "Steven0.png")
+                                                 (bitmap "Steven1.png")
+                                                 (bitmap "Steven2.png")
+                                                 (bitmap "Steven3.png")
+                                                 (bitmap "Steven4.png")
+                                                 (bitmap "Steven5.png")
+                                                 (bitmap "Steven6.png")
+                                                 (bitmap "Steven7.png"))
+                               0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
 (define ENEMY1 (make-enemy 1000 300 (circle 50 "solid" "red") 10))
 
@@ -275,21 +283,11 @@
             clearBoard
             counter))
 
-; (define-struct menuButton [x y image return])
-
 ; X Y Gamestate -> Boolean --- This checks if a x and y collides with a menuButton
 (define (overButton? x y b)
   (and 
    (<  (abs (- x (menuButton-x b))) (/ (image-width (menuButton-image b)) 2))
    (<  (abs (- y (menuButton-y b))) (/ (image-height (menuButton-image b)) 2))))
-
-;(mouse=? "button-down" event)
-; Gamestate -> Boolean --- evaluates the conditions for the end of the world (whether the user has won or lost) and returns #t or #f
-;(define (endWorld gs)
- ;(cond
-  ; [(collision (ugs-character gs) (ugs-objects gs)) #true]
-   ;[else #false]))
-
 
 
 ;-----------------Tock Functions-----------------

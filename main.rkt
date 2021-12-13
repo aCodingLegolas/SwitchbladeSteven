@@ -84,7 +84,8 @@
                             (make-object 1600 550 (rectangle 1000 50 "solid" "black") #f)
                             (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
                             (make-object 3000 6500 (square 100 "solid" "black") #f)
-                            (make-enemy 1000 300 (circle 50 "solid" "red") 10)) clearBoard counter))
+                            (make-object 1500 250 (square 100 "solid" "red") #t)
+                            (make-enemy 1000 400 (circle 50 "solid" "red") 10)) clearBoard counter))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
                             (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
@@ -181,22 +182,6 @@
 
 
 ;FUNCTIONS
-
-; helper function to make a gamestate
-(define (makeGS gs thing)
-  (cond
-    [(character? thing) (make-ugs
-                         (ugs-menu gs)
-                         (ugs-world gs)
-                         thing
-                         (ugs-level gs)
-                         (ugs-objects gs)
-                         (ugs-keyboard gs)
-                         (ugs-tockCounter gs))]
-    [else gs]))
-
-
-
 
 ; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onKey gs key)
@@ -353,24 +338,6 @@
   (= (object-x (first (ugs-objects gs))) endWorldX))
 
 
-; Gamestate -> Gamestate --- Kills the character if the gamestate is such that the character deserves a slow and painful death
-(define (killChar gs)
-  (if (deathCollision? (ugs-objects gs) (ugs-character gs))
-      (make-ugs (ugs-menu gs) (ugs-world gs) DEADCHARACTER (ugs-level gs) (ugs-objects gs) (ugs-keyboard gs) (ugs-tockCounter gs))
-      gs))
-
-; List-of-Objects, Character -> Boolean
-; check if there is a collision with a lethal object
-(define (deathCollision? loo char)
-  (cond
-    [(object-lethal (first loo)) (collision? (first loo) char)]
-    [else (deathCollision? (rest loo char))]))
-
-; Object, Character -> Boolean
-; check to see if the characater collides with an object
-(define (collision? obj char)
-  (< (abs (- (object-x obj) (+ (/ (image-width (character-image char)) 2) charX))) 2))
-
 ; checks whether player completed level or world
 (define (lastLevel? gs)
   (if (= (ugs-level gs) 3)
@@ -382,13 +349,13 @@
 ; I moved everything into a secondary function so that we can add parameters as needed
 (define (returnNextWorld gs)
   (make-ugs (ugs-menu gs)
-                (ugs-world gs)
-                (affect_char gs)
-                (ugs-level gs)
-                (affectLoo gs (move gs) (affect_char gs))
-                (ugs-keyboard gs)
-                (+ 1 (ugs-tockCounter gs))
-                ))
+            (ugs-world gs)
+            (affect_char gs)
+            (ugs-level gs)
+            (affectLoo gs (move gs) (affect_char gs))
+            (ugs-keyboard gs)
+            (+ 1 (ugs-tockCounter gs))
+            ))
 
 ; This function returns the character with either a change in y-position or no change
 (define (affect_char gs)
@@ -616,8 +583,42 @@
       (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))
       (characterRender gs)))
 
-(define (stop gs)
-  (empty? (ugs-objects gs)))
+
+; rotate the character image 90 degrees for last world scene
+(define (renderDeadChar gs)
+  (place-image
+   (rotate 90 (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs))))
+   charX
+   680
+   (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
+
+; check to see if there's a death collision between lethal object and character
+(define (endWorld gs)
+  (deathCollision? (ugs-objects gs) (ugs-character gs)))
+
+; List-of-Objects, Character -> Boolean
+; go through list of objects and check if there is a collision with a lethal object
+(define (deathCollision? loo char)
+  (cond
+    [(empty? loo) #false]
+    [(and (object? (first loo)) (object-lethal (first loo))) (collision? (first loo) char)]
+    [(enemy? (first loo)) (collision? (first loo) char)]
+    [else (deathCollision? (rest loo) char)]))
+
+
+; Object, Character -> Boolean
+; check to see if the characater collides with an object
+(define (collision? obj char)
+  (cond
+    [(object? obj)
+     (< (abs (- (- (object-x obj) (/ (image-width (object-image obj)) 2))
+                  (+ charX (/ (image-width (list-ref (character-image char) (character-imageSelector char))) 2)))) 20)]
+       ;(< (abs (- (- (object-y obj) (/ (image-height (object-image obj)) 2))
+                 ; (+ (character-y char) (/ (image-height (list-ref (character-image char) (character-imageSelector char))) 2)))) 10)))
+    [(enemy? obj)
+     (< (abs (- (- (enemy-x obj) (/ (image-width (object-image obj)) 2))
+                  (+ charX (/ (image-width (list-ref (character-image char) (character-imageSelector char))) 2)))) 50)]))
+
 
 ; Main Big Bang function
 (define (main gs)
@@ -626,8 +627,7 @@
     [on-key onKey]
     [on-release onRelease]
     [on-mouse onMouse]
-    [stop-when stop]
-    [close-on-stop #true]
+    [stop-when endWorld renderDeadChar]
     [to-draw masterRender]))
 
 ; test the program

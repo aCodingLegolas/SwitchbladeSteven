@@ -16,7 +16,7 @@
 
 ; Structures:
 (define-struct ugs [menu world character level objects keyboard tockCounter])
-(define-struct character [y yVel jumps temp image imageSelector move?])
+(define-struct character [y yVel jumps temp image imageSelector moveDirection])
 (define-struct object [x y image lethal])
 (define-struct menuButton [x y image highlighted? return])
 (define-struct enemy [x y image vel])
@@ -31,15 +31,17 @@
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
 (define highlightImage (square 120 "solid" "black"))
-(define steven (make-character charY 0 2 0 (list (bitmap "Steven0.png")
-                                                 (bitmap "Steven1.png")
-                                                 (bitmap "Steven2.png")
-                                                 (bitmap "Steven3.png")
-                                                 (bitmap "Steven4.png")
-                                                 (bitmap "Steven5.png")
-                                                 (bitmap "Steven6.png")
-                                                 (bitmap "Steven7.png"))
+(define stevenImages (list (bitmap "Steven0.png")
+                           (bitmap "Steven1.png")
+                           (bitmap "Steven2.png")
+                           (bitmap "Steven3.png")
+                           (bitmap "Steven4.png")
+                           (bitmap "Steven5.png")
+                           (bitmap "Steven6.png")
+                           (bitmap "Steven7.png")))
+(define steven (make-character charY 0 2 0 stevenImages
                                0 #false))
+(define animationSpeed 4) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
 (define ENEMY1 (make-enemy 1000 300 (circle 50 "solid" "red") 10))
 
@@ -229,7 +231,10 @@
              (character-temp (ugs-character gs))
              (character-image (ugs-character gs))
              (character-imageSelector (ugs-character gs))
-             (if (keyboard-right (ugs-keyboard gs)) #true #false))
+             (cond
+               [(key=? key "right") "right"]
+               [(key=? key "left") "left"]
+               [else (character-moveDirection (ugs-character gs))]))
             (ugs-level gs)
             (ugs-objects gs)
             (make-keyboard
@@ -239,7 +244,6 @@
              (if (key=? key "escape") value (keyboard-escape (ugs-keyboard gs))))
             (ugs-tockCounter gs)))
 
-;(or (key=? key "right") (and (key=? key "right") (key=? key " ")))
 
 ; Gamestate -> Gamestate --- Exits the world if menu-state == #f, backs up a level in menu-state,
 ;                             exits the game if were're in the mainMenu
@@ -299,30 +303,35 @@
 ; Gamestate -> Gamestate --- this function adds the jumpStrength to the y-value of the character
 (define (jump gs)
   (if (> (character-jumps (ugs-character gs)) 0)
-  (make-ugs (ugs-menu gs) (ugs-world gs)
-  (make-character
-   (character-y (ugs-character gs))
-   (- jumpStrength)
-   (- (character-jumps (ugs-character gs)) 1)
-   (character-temp (ugs-character gs))
-   (character-image (ugs-character gs))
-   (character-imageSelector (ugs-character gs))
-   (character-move? (ugs-character gs)))
-  (ugs-level gs)
-  (ugs-objects gs)
-  (ugs-keyboard gs)
-  (ugs-tockCounter gs))
-  gs))
+      (make-ugs (ugs-menu gs) (ugs-world gs)
+                (make-character
+                 (character-y (ugs-character gs))
+                 (- jumpStrength)
+                 (- (character-jumps (ugs-character gs)) 1)
+                 (character-temp (ugs-character gs))
+                 (character-image (ugs-character gs))
+                 (character-imageSelector (ugs-character gs))
+                 (character-moveDirection (ugs-character gs)))
+                (ugs-level gs)
+                (ugs-objects gs)
+                (ugs-keyboard gs)
+                (ugs-tockCounter gs))
+      gs))
+
+
+
+; Gamestate -> Boolean
+;(define (getAnimationMode gs)
+ ;     (cond
+  ;      [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) "right"]
+   ;     [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) "left"]
+    ;    [else #f]))
 
 ; Animate Tock
 ; Character -> imageSelector
 ; Updates and returns the imageSelector of the input dude to determine which image will be rendered for animation
-
 (define (animateCharacter dude cntr)
-  (if (character-move? dude)
-       (modulo (if (= 1 (modulo cntr 4)) (+ 1 (character-imageSelector dude)) (character-imageSelector dude)) (length (character-image dude)))
-       0))
-
+     (modulo (if (= 1 (modulo cntr animationSpeed)) (+ 1 (character-imageSelector dude)) (character-imageSelector dude)) (length (character-image dude))))
  ;POTENTIAL FIX FOR FAST MOVEMENT 
 
 ; Character -> Character --- effects gravity on the world
@@ -335,7 +344,7 @@
    (character-temp char)
    (character-image char)
    (animateCharacter char cntr)
-   (character-move? char)))
+   (character-moveDirection char)))
 
 
 ;-----------------MASTER TOCKS------------------
@@ -386,7 +395,7 @@
     (character-temp (ugs-character gs))
     (character-image (ugs-character gs))
     (character-imageSelector (ugs-character gs))
-    (character-move? (ugs-character gs)))
+    (character-moveDirection (ugs-character gs)))
    (gravityHappens (ugs-character gs) (ugs-tockCounter gs))))
 
 ; Gamestate -> Gamestate
@@ -487,7 +496,7 @@
     [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-character gs) (ugs-objects gs) -)]
     [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) (moveHelper (ugs-character gs) (ugs-objects gs) +)]
     [else (ugs-objects gs)]))
-   
+
 
 ; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
 (define (moveHelper char loo direction)
@@ -577,10 +586,27 @@
 ;(renderAllObjects looe mainB)
 ; Gamestate -> Image
 ; takes a character and renders instructed images
-; The directionSelector determines which render takes place: 0 for standing, 1 for front walking, 2 for back walking
 ; The imageSelector determines which image to render
 (define (characterRender gs)
-  (place-image (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs)))
+  (place-image
+   (cond
+     [(and
+       (equal? (character-moveDirection (ugs-character gs)) "right")
+       (= (character-jumps (ugs-character gs)) 2))
+      (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs)))]
+     [(and
+       (equal? (character-moveDirection (ugs-character gs)) "left")
+       (= (character-jumps (ugs-character gs)) 2))
+      (flip-horizontal (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs))))]
+     [(and
+       (equal? (character-moveDirection (ugs-character gs)) "right")
+       (< (character-jumps (ugs-character gs)) 2))
+      (list-ref (character-image (ugs-character gs)) 2)]
+     [(and
+       (equal? (character-moveDirection (ugs-character gs)) "left")
+       (< (character-jumps (ugs-character gs)) 2))
+      (flip-horizontal (list-ref (character-image (ugs-character gs)) 2))]
+     [else (list-ref (character-image (ugs-character gs)) 0)])
                charX
                (character-y (ugs-character gs))
                (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
@@ -606,7 +632,7 @@
 ; Main Big Bang function
 (define (main gs)
   (big-bang gs
-    [on-tick tock .01]
+    [on-tick tock .02]
     [on-key onKey]
     [on-release onRelease]
     [on-mouse onMouse]

@@ -372,7 +372,7 @@
                 (ugs-world gs)
                 (affect_char gs)
                 (ugs-level gs)
-                (affectLoo gs (filter object? (move gs)) (affect_char gs))
+                (affectLoo gs (move gs) (affect_char gs))
                 (ugs-keyboard gs)
                 (+ 1 (ugs-tockCounter gs))
                 ))
@@ -384,7 +384,7 @@
    (make-character
     (character-y (ugs-character gs))
     0
-    (character-jumps (ugs-character gs))
+    2
     (character-temp (ugs-character gs))
     (character-image (ugs-character gs))
     (character-imageSelector (ugs-character gs))
@@ -419,7 +419,7 @@
        (<=
         (abs (- (object-x (first (ugs-objects gs))) charX))
         (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26)))
-      ; hehehe graphical hard-coding with that 26 to eliminate a falling bug
+      ;                         hehehe graphical hard-coding with that 26 to eliminate a falling bug
       ; Recursion
       (char_object_collision?
        (make-ugs
@@ -433,7 +433,7 @@
 
 ; This function returns a list of objects that is either moved or not, depending on collision
 (define (affectLoo gs movedLoo futureChar)
-  (if (objectMoveCollision? gs movedLoo futureChar)
+  (if (objectMoveCollision? gs (filter object? movedLoo) futureChar)
       (ugs-objects gs)
       movedLoo))
 

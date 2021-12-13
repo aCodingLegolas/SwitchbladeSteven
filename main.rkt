@@ -16,7 +16,7 @@
 
 ; Structures:
 (define-struct ugs [menu world character level objects keyboard tockCounter])
-(define-struct character [y yVel temp image imageSelector move?])
+(define-struct character [y yVel jumps temp image imageSelector move?])
 (define-struct object [x y image lethal])
 (define-struct menuButton [x y image highlighted? return])
 (define-struct enemy [x y image vel])
@@ -31,7 +31,7 @@
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
 (define highlightImage (square 120 "solid" "black"))
-(define steven (make-character charY 0 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
+(define steven (make-character charY 0 2 0 (list (bitmap "Steven0.png") (bitmap "Steven1.png") (bitmap "Steven2.png") (bitmap "Steven3.png") (bitmap "Steven4.png") (bitmap "Steven5.png") (bitmap "Steven6.png") (bitmap "Steven7.png")) 0 #false))
 (define clearBoard (make-keyboard #f #f #f #f))
 
 
@@ -216,6 +216,7 @@
             (make-character
              (character-y (ugs-character gs))
              (character-yVel (ugs-character gs))
+             (character-jumps (ugs-character gs))
              (character-temp (ugs-character gs))
              (character-image (ugs-character gs))
              (character-imageSelector (ugs-character gs))
@@ -298,10 +299,12 @@
 ;(define-struct ugs [menu world character level objects keyboard])
 ; Gamestate -> Gamestate --- this function adds the jumpStrength to the y-value of the character
 (define (jump gs)
+  (if (> (character-jumps (ugs-character gs)) 0)
   (make-ugs (ugs-menu gs) (ugs-world gs)
   (make-character
    (character-y (ugs-character gs))
    (- jumpStrength)
+   (- (character-jumps (ugs-character gs)) 1)
    (character-temp (ugs-character gs))
    (character-image (ugs-character gs))
    (character-imageSelector (ugs-character gs))
@@ -309,7 +312,8 @@
   (ugs-level gs)
   (ugs-objects gs)
   (ugs-keyboard gs)
-  (ugs-tockCounter gs)))
+  (ugs-tockCounter gs))
+  gs))
 
 ; Animate Tock
 ; Character -> imageSelector
@@ -328,6 +332,7 @@
   (make-character
    (+ (character-y char) (character-yVel char))
    (if (<= (character-yVel char) maxFall) (+ (character-yVel char) gravity) (character-yVel char))
+   (character-jumps char)
    (character-temp char)
    (character-image char)
    (animateCharacter char cntr)
@@ -380,7 +385,7 @@
                 (ugs-world gs)
                 (affect_char gs)
                 (ugs-level gs)
-                (affectLoo gs (filter object? (move gs)) (affect_char gs))
+                (affectLoo gs (move gs) (affect_char gs))
                 (ugs-keyboard gs)
                 (+ 1 (ugs-tockCounter gs))
                 ))
@@ -392,6 +397,7 @@
    (make-character
     (character-y (ugs-character gs))
     0
+    2
     (character-temp (ugs-character gs))
     (character-image (ugs-character gs))
     (character-imageSelector (ugs-character gs))
@@ -426,7 +432,7 @@
        (<=
         (abs (- (object-x (first (ugs-objects gs))) charX))
         (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26)))
-      ; hehehe graphical hard-coding with that 26 to eliminate a falling bug
+      ;                         hehehe graphical hard-coding with that 26 to eliminate a falling bug
       ; Recursion
       (char_object_collision?
        (make-ugs
@@ -440,7 +446,7 @@
 
 ; This function returns a list of objects that is either moved or not, depending on collision
 (define (affectLoo gs movedLoo futureChar)
-  (if (objectMoveCollision? gs movedLoo futureChar)
+  (if (objectMoveCollision? gs (filter object? movedLoo) futureChar)
       (ugs-objects gs)
       movedLoo))
 

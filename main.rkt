@@ -243,20 +243,26 @@
                              counter
                              score))
 
-
+(define levelUpList (list world1.1 world1.2 world1.3 world2.1 world2.2 world2.3 world3.1 world3.2 world3.3))
 ; temporary level up buttons
-(define levelUpText (text "You completed this level!\nLevel up?       Yes" 24 "white"))
+(define levelUpText (text "You completed this level!\nLevel up?  Yes" 12 "white"))
 (define levelUpImage (overlay levelUpText
-                              (rectangle 300 100 "solid" "blue")))
+                              (square 100 "solid" "blue")))
 
 ; create menu button for the end of a level with the return value of the next level
 (define (makeLevelUpButton currentWorld currentLevel currentScore)
-  (make-menuButton charX (/ (image-height mainB) 2) levelUpImage #false
-                   (make-ugs #f currentWorld steven currentLevel
-                           (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter currentScore)))
+  (make-menuButton
+   charX
+   (/ (image-height mainB) 2)
+   levelUpImage
+   #false
+   (first (filter ugs? (for/list ([i (length levelUpList)])
+     (if (and (= (ugs-world (list-ref levelUpList i)) currentWorld) (= (ugs-level (list-ref levelUpList i)) currentLevel)) (list-ref levelUpList i) #f))))))
 
+
+
+
+  
 ; Create button that congratulates player at reaching end of the world
 (define completedWorldText (text "Congratulations! \nYou've completed this world." 24 "white"))
 (define completedWorldImage (overlay completedWorldText

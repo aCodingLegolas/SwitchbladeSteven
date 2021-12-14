@@ -40,9 +40,11 @@
                            (bitmap "Steven5.png")
                            (bitmap "Steven6.png")
                            (bitmap "Steven7.png")))
+(define backwardSteven (for/list([im stevenImages])
+                                  (flip-horizontal im)))
 (define steven (make-character charY 0 2 0 stevenImages
                                0 #false))
-(define animationSpeed 4) ; Bigger numbers mean slower animation speed
+(define animationSpeed 3) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
 
 
@@ -383,14 +385,6 @@
       gs))
 
 
-
-; Gamestate -> Boolean
-;(define (getAnimationMode gs)
- ;     (cond
-  ;      [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) "right"]
-   ;     [(and (keyboard-left (ugs-keyboard gs)) (not (keyboard-right (ugs-keyboard gs)))) "left"]
-    ;    [else #f]))
-
 ; Animate Tock
 ; Character -> imageSelector
 ; Updates and returns the imageSelector of the input dude to determine which image will be rendered for animation
@@ -559,7 +553,6 @@
        (<=
         (abs (- (object-x (first (ugs-objects gs))) charX))
         (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26)))
-      ;                         hehehe graphical hard-coding with that 26 to eliminate a falling bug
       ; Recursion
       (char_object_collision?
        (make-ugs
@@ -743,7 +736,7 @@
      [(and
        (equal? (character-moveDirection (ugs-character gs)) "left")
        (= (character-jumps (ugs-character gs)) 2))
-      (flip-horizontal (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs))))]
+      (list-ref backwardSteven (character-imageSelector (ugs-character gs)))]
      [(and
        (equal? (character-moveDirection (ugs-character gs)) "right")
        (< (character-jumps (ugs-character gs)) 2))
@@ -751,7 +744,7 @@
      [(and
        (equal? (character-moveDirection (ugs-character gs)) "left")
        (< (character-jumps (ugs-character gs)) 2))
-      (flip-horizontal (list-ref (character-image (ugs-character gs)) 2))]
+      (list-ref backwardSteven 2)]
      [else (list-ref (character-image (ugs-character gs)) 0)])
                charX
                (character-y (ugs-character gs))
@@ -890,7 +883,7 @@
 ; Main Big Bang function
 (define (main gs)
   (big-bang gs
-    [on-tick tock .02]
+    [on-tick tock .01]
     [on-key onKey]
     [on-release onRelease]
     [on-mouse onMouse]

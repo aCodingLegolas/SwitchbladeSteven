@@ -47,6 +47,8 @@
 (define animationSpeed 3) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
 
+(define bottom (- (image-height mainB) (/ (image-height (list-ref stevenImages 1)) 2)))
+
 
 ; Physics settings:
 (define jumpStrength 5)
@@ -100,7 +102,7 @@
                             (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
                             (make-object 3000 6500 (square 100 "solid" "black") #f)
                             (make-object 1500 250 (square 100 "solid" "red") #t)
-                            (make-enemy 1000 400 (circle 50 "solid" "red") 10)
+                            (make-enemy 2500 0 (circle 50 "solid" "red") 10)
                             ) clearBoard counter score))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list
@@ -141,40 +143,46 @@
                             (make-object 2500 600 (rectangle 1000 5 "solid" "green") #f)
                             (make-object 3500 400 (rectangle 1000 5 "solid" "green") #f)
                             ;icicles
-                            (make-object 600 425 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 900 425 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 1600 350 (rectangle 5 100 "solid" "gray") #t)
-                            (make-object 2000 325 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 2300 525 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 2500 525 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 3200 325 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 3500 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 600 400 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 700 400 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 900 400 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 1600 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 1800 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 2000 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 2300 500 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 2500 500 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 3200 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 3500 300 (rectangle 5 200 "solid" "gray") #t)
                             ;snowmen
-                            (make-prize 1300 125 (ellipse 30 80 "solid" "pink") 20)
-                            (make-prize 1800 325 (ellipse 40 100 "solid" "pink") 10)
+                            (make-prize 900 100 (ellipse 30 80 "solid" "pink") 20)
+                            (make-prize 1300 75 (ellipse 30 80 "solid" "pink") 20)
+                            (make-prize 1800 35 (ellipse 20 60 "solid" "pink") 30)
                             ) clearBoard counter score))
 
 (define world3.2 (make-ugs #f 3 steven 2
                            (list
                             ;floor
-                            (make-object 500 500 (rectangle 500 5 "solid" "green") #f)
-                            (make-object 1500 400 (rectangle 1000 5 "solid" "green") #f)
+                            (make-object 400 500 (rectangle 600 5 "solid" "green") #f)
+                            (make-object 1400 400 (rectangle 1000 5 "solid" "green") #f)
                             (make-object 2500 600 (rectangle 500 5 "solid" "green") #f)
-                            (make-object 2500 600 (rectangle 500 5 "solid" "green") #f)
-                            (make-object 3400 400 (rectangle 1000 5 "solid" "green") #f)
+                            (make-object 3400 700 (rectangle 1000 5 "solid" "green") #f)
                             ;icicles
-                            (make-object 500 425 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 1100 325 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 1600 350 (rectangle 5 100 "solid" "gray") #t)
-                            (make-object 2000 325 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 2300 525 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 2500 525 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 3200 325 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 3500 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 500 390 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 1100 290 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 1600 290 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 1800 290 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 2400 490 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 2500 490 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 3200 600 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 3500 600 (rectangle 5 220 "solid" "gray") #t)
                             ;snowmen
-                            (make-prize 1300 100 (ellipse 30 80 "solid" "pink") 20)
-                            (make-prize 1800 125 (ellipse 40 100 "solid" "pink") 10)
-                            (make-prize 2300 125 (ellipse 40 100 "solid" "pink") 30)
+                            (make-prize 700 100 (ellipse 30 80 "solid" "pink") 20)
+                            (make-prize 1300 50 (ellipse 30 80 "solid" "pink") 20)
+                            (make-prize 1900 125 (ellipse 40 100 "solid" "pink") 10)
+                            (make-prize 2300 100 (ellipse 40 100 "solid" "pink") 30)
+                            ;avalanche
+                            (make-enemy 600 -60 (circle 50 "solid" "black") 5)
+                            (make-enemy 3050 -60 (circle 50 "solid" "black") 12)
                             ) clearBoard counter score))
 
 (define world3.3 (make-ugs #f 3 steven 3
@@ -185,6 +193,7 @@
                             (make-object 1700 600 (rectangle 1000 5 "solid" "green") #f)
                             (make-object 2300 400 (rectangle 200 5 "solid" "green") #f)
                             (make-object 2700 400 (rectangle 200 5 "solid" "green") #f)
+                            (make-object 3100 400 (rectangle 600 5 "solid" "green") #f)
                             ;icicles
                             (make-object 600 400 (rectangle 5 200 "solid" "gray") #t)
                             (make-object 1000 285 (rectangle 5 230 "solid" "gray") #t)
@@ -199,6 +208,11 @@
                             (make-prize 1400 100 (ellipse 30 80 "solid" "pink") 40)
                             (make-prize 1800 325 (ellipse 40 100 "solid" "pink") 10)
                             (make-prize 1800 325 (ellipse 40 100 "solid" "pink") 10)
+                            ;avalanches
+                            (make-enemy 900 -60 (circle 20 "solid" "black") 5)
+                            (make-enemy 1400 -60 (circle 20 "solid" "black") 2)
+                            (make-enemy 1800 -60 (circle 50 "solid" "black") 10)
+                            (make-enemy 2400 -60 (circle 50 "solid" "black") 10)
                             ) clearBoard counter score))
 
 (define world3Menu (make-ugs #t 3 steven 0
@@ -256,11 +270,20 @@
    (/ (image-height mainB) 2)
    levelUpImage
    #false
-   (first (filter ugs? (for/list ([i (length levelUpList)])
-     (if (and (= (ugs-world (list-ref levelUpList i)) currentWorld) (= (ugs-level (list-ref levelUpList i)) currentLevel)) (list-ref levelUpList i) #f))))))
+   (make-ugs
+    #f
+    (ugs-world (getNextWorld currentWorld currentLevel))
+    (ugs-character (getNextWorld currentWorld currentLevel))
+    (ugs-level (getNextWorld currentWorld currentLevel))
+    (ugs-objects (getNextWorld currentWorld currentLevel))
+    clearBoard
+    counter
+    currentScore)))
 
 
-
+(define (getNextWorld currentWorld currentLevel)
+  (first (filter ugs? (for/list ([i (length levelUpList)])
+     (if (and (= (ugs-world (list-ref levelUpList i)) currentWorld) (= (ugs-level (list-ref levelUpList i)) currentLevel)) (list-ref levelUpList i) #f)))))
 
   
 ; Create button that congratulates player at reaching end of the world
@@ -642,8 +665,7 @@
                                            (prize-image (first loo))
                                            (prize-points (first loo)))]
                   [(enemy? (first loo)) (cond
-                                          [(checkEnemyX (first loo)) (enemyAttack (first loo) char)]
-                                          [(enemyMissed? (first loo)) (enemyContinue (first loo))]
+                                          [(checkEnemyX (first loo)) (enemyAttack (first loo))]
                                           [else (make-enemy
                                                  (direction (enemy-x (first loo)) 2)
                                                  (enemy-y (first loo))
@@ -655,46 +677,16 @@
 
 ; check to see if the enemy has entered the world
 (define (checkEnemyX enemy)
-  (and (< (enemy-x enemy) (image-width mainB)) (> (enemy-x enemy) (+ 20 charX))))
+  (< (enemy-x enemy) charX))
 
 ; if the enemy is on the screen and has not missed, attack the character
-(define (enemyAttack enemy char)
-  (make-enemy (- (enemy-x enemy) (closeInX enemy))
-              (- (enemy-y enemy) (closeInY enemy char))
-              (enemy-image enemy)
-              (enemy-vel enemy)))
-
-; calculate distance to move on x axis towards the character
-(define (closeInX enemy)
-  (* (- (enemy-x enemy) charX) .05))
-
-
-; calculate distance to move on y axis towards the character
-(define (closeInY enemy char)
-  (* (- (enemy-y enemy) (character-y char)) .05))
-
-
-; check to see if the enemy is in the world but has missed the character
-(define (enemyMissed? enemy)
-  (< (enemy-x enemy) (+ 10 charX)))
-
-
-; enemy continues direction off screen
-(define (enemyContinue enemy)
-  (make-enemy (- (enemy-x enemy) (fadeOutX enemy))
-              (- (enemy-y enemy) (fadeOutY enemy))
+(define (enemyAttack enemy)
+  (make-enemy (- (enemy-x enemy) 2)
+              (+ (enemy-y enemy) (enemy-vel enemy))
               (enemy-image enemy)
               (enemy-vel enemy)))
 
 
-; calculate distance to move on x axis to move enemy off screen
-(define (fadeOutX enemy)
-  (* (- (enemy-x enemy) (- 0 (image-width (enemy-image enemy)))) .05))
-
-
-; calculate distance to move on y axis to move enemy off screen
-(define (fadeOutY enemy)
-  (* (- (enemy-y enemy) (- (image-height mainB) (image-width (enemy-image enemy)))) .05))
 
 ; overlay prize image with points
 (define (showPoints prize)
@@ -780,7 +772,7 @@
   (place-image
    (rotate 90 (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs))))
    charX
-   680
+   (if (> (character-y (ugs-character gs)) bottom) 675 (+ (/ (image-height (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs)))) 2) (character-y (ugs-character gs))))
    (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
 
 ; check to see if there's a death collision between lethal object and character
@@ -792,6 +784,7 @@
 (define (deathCollision? gs)
   (cond
     [(empty? (ugs-objects gs)) #false]
+    [(> (character-y (ugs-character gs)) (image-height mainB)) #true]
     [(or (enemy? (first (ugs-objects gs))) (and (object? (first (ugs-objects gs))) (object-lethal (first (ugs-objects gs))))) (collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))]
     [else (deathCollision?
            (make-ugs
@@ -839,7 +832,7 @@
         (ugs-world gs)
         (ugs-character gs)
         (ugs-level gs)
-        (rest (filter object? (ugs-objects gs)))
+        (rest (ugs-objects gs))
         (ugs-keyboard gs)
         (ugs-tockCounter gs)
         (ugs-score gs)) futureCharY))]
@@ -874,10 +867,21 @@
         (ugs-world gs)
         (ugs-character gs)
         (ugs-level gs)
-        (rest (filter enemy? (ugs-objects gs)))
+        (rest (ugs-objects gs))
         (ugs-keyboard gs)
         (ugs-tockCounter gs)
-        (ugs-score gs)) futureCharY))]))
+        (ugs-score gs)) futureCharY))]
+    [(prize? (first (ugs-objects gs)))
+     (collision?
+       (make-ugs
+        (ugs-menu gs)
+        (ugs-world gs)
+        (ugs-character gs)
+        (ugs-level gs)
+        (rest (ugs-objects gs))
+        (ugs-keyboard gs)
+        (ugs-tockCounter gs)
+        (ugs-score gs)) futureCharY)]))
 
 
 ; Main Big Bang function

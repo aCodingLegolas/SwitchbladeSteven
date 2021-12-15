@@ -47,6 +47,10 @@
 (define animationSpeed 3) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
 (define bottom (- (image-height mainB) (/ (image-height (list-ref stevenImages 1)) 2)))
+(define levelUpText (text " You completed\n this level!\n Level up?\n\n Yes " 12 "white"))
+(define levelUpImage (overlay levelUpText (square 100 "solid" "blue"))) ;make button to level up at the end of a level
+(define completedWorldText (text " Congratulations!\n You've\n completed\n this world." 12 "white"))
+(define completedWorldImage (overlay completedWorldText (square 100 "solid" "blue")))
 
 
 ; Physics settings:
@@ -128,9 +132,7 @@
                              clearBoard
                              counter
                              score))
-; June's world
-
-
+; June's world; Levels 1 - 3
 (define world3.1 (make-ugs #f 3 steven 1
                            (list
                             ;floor
@@ -139,20 +141,20 @@
                             (make-object 2500 600 (rectangle 1000 5 "solid" "green") #f)
                             (make-object 3500 400 (rectangle 1000 5 "solid" "green") #f)
                             ;icicles
-                            (make-object 600 400 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 700 400 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 900 400 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 1600 300 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 1800 300 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 2000 300 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 2300 500 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 2500 500 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 3200 300 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 3500 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 600 425 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 700 425 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 900 425 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 1600 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 1800 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 2000 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 2300 525 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 2500 525 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 3200 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 3500 325 (rectangle 5 150 "solid" "gray") #t)
                             ;snowmen
                             (make-prize 900 100 (ellipse 30 80 "solid" "pink") 20)
                             (make-prize 1300 75 (ellipse 30 80 "solid" "pink") 20)
-                            (make-prize 1800 35 (ellipse 20 60 "solid" "pink") 30)
+                            (make-prize 2200 90 (ellipse 20 60 "solid" "pink") 30)
                             ) clearBoard counter score))
 
 (define world3.2 (make-ugs #f 3 steven 2
@@ -163,22 +165,22 @@
                             (make-object 2500 600 (rectangle 500 5 "solid" "green") #f)
                             (make-object 3400 700 (rectangle 1000 5 "solid" "green") #f)
                             ;icicles
-                            (make-object 500 390 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 1100 290 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 1600 290 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 1800 290 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 2400 490 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 2500 490 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 3200 600 (rectangle 5 220 "solid" "gray") #t)
-                            (make-object 3500 600 (rectangle 5 220 "solid" "gray") #t)
+                            (make-object 500 400 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 1100 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 1600 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 1800 300 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 2400 500 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 2500 500 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 3200 600 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 3500 600 (rectangle 5 200 "solid" "gray") #t)
                             ;snowmen
                             (make-prize 700 100 (ellipse 30 80 "solid" "pink") 20)
                             (make-prize 1300 50 (ellipse 30 80 "solid" "pink") 20)
                             (make-prize 1900 125 (ellipse 40 100 "solid" "pink") 10)
                             (make-prize 2300 100 (ellipse 40 100 "solid" "pink") 30)
                             ;avalanche
-                            (make-enemy 600 -60 (circle 50 "solid" "black") 5)
-                            (make-enemy 3050 -60 (circle 50 "solid" "black") 12)
+                            (make-enemy 2500 -60 (circle 50 "solid" "black") 5)
+                            (make-enemy 3050 -60 (circle 40 "solid" "black") 12)
                             ) clearBoard counter score))
 
 (define world3.3 (make-ugs #f 3 steven 3
@@ -189,28 +191,28 @@
                             (make-object 1700 600 (rectangle 1000 5 "solid" "green") #f)
                             (make-object 2300 400 (rectangle 200 5 "solid" "green") #f)
                             (make-object 2700 400 (rectangle 200 5 "solid" "green") #f)
-                            (make-object 3100 400 (rectangle 600 5 "solid" "green") #f)
+                            (make-object 3400 600 (rectangle 800 5 "solid" "green") #f)
                             ;icicles
-                            (make-object 600 400 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 600 385 (rectangle 5 230 "solid" "gray") #t)
                             (make-object 1000 285 (rectangle 5 230 "solid" "gray") #t)
-                            (make-object 1400 500 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 1500 500 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 1600 500 (rectangle 5 200 "solid" "gray") #t)
+                            (make-object 1400 485 (rectangle 5 230 "solid" "gray") #t)
+                            (make-object 1500 485 (rectangle 5 230 "solid" "gray") #t)
+                            (make-object 1600 485 (rectangle 5 230 "solid" "gray") #t)
                             (make-object 2300 300 (rectangle 5 200 "solid" "gray") #t)
                             (make-object 2400 300 (rectangle 5 200 "solid" "gray") #t)
-                            (make-object 2700 325 (rectangle 5 150 "solid" "gray") #t)
-                            (make-object 3500 325 (rectangle 5 150 "solid" "gray") #t)
+                            (make-object 2700 285 (rectangle 5 230 "solid" "gray") #t)
+                            (make-object 3500 485 (rectangle 5 230 "solid" "gray") #t)
                             ;snowmen
                             (make-prize 1400 100 (ellipse 30 80 "solid" "pink") 40)
-                            (make-prize 1800 325 (ellipse 40 100 "solid" "pink") 10)
-                            (make-prize 1800 325 (ellipse 40 100 "solid" "pink") 10)
+                            (make-prize 1900 120 (ellipse 30 80 "solid" "pink") 30)
+                            (make-prize 2500 325 (ellipse 30 60 "solid" "pink") 20)
+                            (make-prize 3400 200 (ellipse 30 60 "solid" "pink") 10)
                             ;avalanches
                             (make-enemy 900 -60 (circle 20 "solid" "black") 5)
-                            (make-enemy 1400 -60 (circle 20 "solid" "black") 2)
-                            (make-enemy 1800 -60 (circle 50 "solid" "black") 10)
-                            (make-enemy 2400 -60 (circle 50 "solid" "black") 10)
+                            (make-enemy 1800 -60 (circle 30 "solid" "black") 10)
+                            (make-enemy 3100 -60 (circle 30 "solid" "black") 10)
                             ) clearBoard counter score))
-
+; June's World Level Menu
 (define world3Menu (make-ugs #t 3 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
@@ -231,7 +233,7 @@
                              clearBoard
                              counter
                              score))
-; Main menu
+; Main Menu
 (define mainMenu (make-ugs #t 0 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
@@ -252,14 +254,18 @@
                              clearBoard
                              counter
                              score))
-
+; list with all the worlds
 (define levelUpList (list world1.1 world1.2 world1.3 world2.1 world2.2 world2.3 world3.1 world3.2 world3.3))
-; temporary level up buttons
-(define levelUpText (text "You completed this level!\nLevel up?  Yes" 12 "white"))
-(define levelUpImage (overlay levelUpText
-                              (square 100 "solid" "blue")))
 
-; create menu button for the end of a level with the return value of the next level
+; Button that congratulates player at reaching end of the world
+(define completedWorldButton (make-menuButton charX (/ (image-height mainB) 2) completedWorldImage #false mainMenu)) 
+
+;---------------------------------------------------------------
+;                          FUNCTIONS
+;---------------------------------------------------------------
+
+; World, Level, Score -> MenuButton
+; creates a menu button for the end of a level with the return value of the next level
 (define (makeLevelUpButton currentWorld currentLevel currentScore)
   (make-menuButton
    charX
@@ -276,20 +282,12 @@
     counter
     currentScore)))
 
-
+; World, Level -> GameState
+; Gets the next level in the world and sets the initial score to the previous score
 (define (getNextWorld currentWorld currentLevel)
   (first (filter ugs? (for/list ([i (length levelUpList)])
      (if (and (= (ugs-world (list-ref levelUpList i)) currentWorld) (= (ugs-level (list-ref levelUpList i)) currentLevel)) (list-ref levelUpList i) #f)))))
 
-  
-; Create button that congratulates player at reaching end of the world
-(define completedWorldText (text "Congratulations! \nYou've completed this world." 24 "white"))
-(define completedWorldImage (overlay completedWorldText
-                              (rectangle 300 100 "solid" "blue")))
-(define completedWorldButton (make-menuButton charX (/ (image-height mainB) 2) completedWorldImage #false mainMenu))
-
-
-;FUNCTIONS
 
 ; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
 (define (onKey gs key)
@@ -429,40 +427,30 @@
 (define (tock gs)
   (cond
     [(ugs-menu gs) gs] ;Don't move anything if we're in the menu
-    [(levelUp? gs) (lastLevel? gs)]
-    [(hitPrize? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs))) (increaseScore gs)]
-    [(missedPrize? gs) (removePrize gs)]
+    [(levelUp? gs) (lastLevel? gs)] ;check if the player has reached the end of the world
+    [(hitPrize? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs))) (increaseScore gs)] ;check if the player hit a prize
+    [(missedPrize? gs) (removePrize gs)] ;check if the player missed a prize and remove it if so
     [else (returnNextWorld gs)]))
 
-; checks for collision with a prize
+;Gamestate, Character -> Boolean
+;checks for collision with a prize
 (define (hitPrize? gs futureCharY)
     (cond
     [(empty? (ugs-objects gs)) #f]
     [(prize? (first (ugs-objects gs)))
      (and
        (and
-
-        ; Bottem of char is lower than the top of ob
         (>=
-         (+
-          (character-y futureCharY)
-          (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (+ (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
          (- (prize-y (first (ugs-objects gs))) (/ (image-height (prize-image (first (ugs-objects gs)))) 2)))
-
-        ; Top of char is higher than bottem of ob
         (<=
-         (-
-          (character-y futureCharY)
-          (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (- (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
          (+ (prize-y (first (ugs-objects gs))) (/ (image-height (prize-image (first (ugs-objects gs)))) 2)))
-        )
-        
+        )     
        (<=
         (abs (- (prize-x (first (ugs-objects gs))) charX))
         (+ (/ (image-width (prize-image (first (ugs-objects gs)))) 2) 26)))]
-      ;                         hehehe graphical hard-coding with that 26 to eliminate a falling bug
-    [else      
-      ; Recursion
+    [else
       (hitPrize?
        (make-ugs
         (ugs-menu gs)
@@ -474,11 +462,12 @@
         (ugs-tockCounter gs)
         (ugs-score gs)) futureCharY)]))
 
+; Gamestate -> Gamestate
 ; checks if the character missed a prize
 (define (missedPrize? gs)
   (if (empty? (filter prize? (ugs-objects gs))) #f (< (prize-x (first (filter prize? (ugs-objects gs)))) 0)))
 
-
+; Gamestate -> Gamestate
 ; increase the score after hitting a prize
 (define (increaseScore gs)
   (removePrize (make-ugs
@@ -491,6 +480,7 @@
         (ugs-tockCounter gs)
         (+ (prize-points (first (filter prize? (ugs-objects gs)))) (ugs-score gs)))))
 
+; Gamestate -> Gamestate
 ; Removes the prize after increasing the score
 (define (removePrize gs)
   (make-ugs
@@ -503,13 +493,13 @@
         (ugs-tockCounter gs)
         (ugs-score gs)))
 
-
+; Gamestate -> Gamestate
 ; check to see if the player has reached the end of the world
 (define (levelUp? gs)
   (= (object-x (first (filter object? (ugs-objects gs)))) endLevelX))
 
-
-; checks whether player completed level or world
+; Gamestate Gamestate
+; check whether the player completed level or world
 (define (lastLevel? gs)
   (if (= (ugs-level gs) 3)
       (make-ugs #t (ugs-world gs) (ugs-character gs) (ugs-level gs) (list completedWorldButton) (ugs-keyboard gs) (ugs-tockCounter gs) (ugs-score gs)) ;return Completed World Image
@@ -523,11 +513,33 @@
             (ugs-world gs)
             (affect_char gs)
             (ugs-level gs)
-            (affectLoo gs (move gs) (affect_char gs))
+            (enemyAttack (affectLoo gs (move gs) (affect_char gs)))
             (ugs-keyboard gs)
             (+ 1 (ugs-tockCounter gs))
             (ugs-score gs)
             ))
+
+
+; Enemy -> Boolean
+; helper function that checks to see if the enemy has entered the world
+(define (checkEnemyX enemy)
+  (> (enemy-x enemy) charX))
+
+
+; List-of-Objects -> List-of-Objects
+; if an enemy is at the charX value, attack the character, otherwise return the same enemy position
+(define (enemyAttack loo)
+  (cond
+    [(empty? loo) '()]
+    [(or (prize? (first loo)) (object? (first loo))) (cons (first loo)(enemyAttack (rest loo)))]
+    [(checkEnemyX (first loo)) (cons (first loo) (enemyAttack (rest loo)))]
+    [else (cons (make-enemy
+                 (enemy-x (first loo))
+                 (+ (enemy-y (first loo)) (enemy-vel (first loo)))
+                 (enemy-image (first loo))
+                 (enemy-vel (first loo))) (enemyAttack (rest loo)))]))
+
+
 
 ; This function returns the character with either a change in y-position or no change
 (define (affect_char gs)
@@ -637,7 +649,8 @@
       ]))
    
 
-; Gamestate -> Gamestate --- moves the world forward
+; Gamestate -> Gamestate
+; moves the objects in the world backward or forward
 (define (move gs)
   (cond
     [(and (keyboard-right (ugs-keyboard gs)) (not (keyboard-left (ugs-keyboard gs)))) (moveHelper (ugs-character gs) (ugs-objects gs) -)]
@@ -645,7 +658,8 @@
     [else (ugs-objects gs)]))
 
 
-; List-of-Objects -> List-of-Objects --- decreases the x coordinate of each object in the world
+; List-of-Objects, Direction -> List-of-Objects
+; decreases the x coordinate of each object in the world
 (define (moveHelper char loo direction)
   (cond
     [(empty? loo) '()]
@@ -660,36 +674,24 @@
                                            (prize-y (first loo))
                                            (prize-image (first loo))
                                            (prize-points (first loo)))]
-                  [(enemy? (first loo)) (cond
-                                          [(checkEnemyX (first loo)) (enemyAttack (first loo))]
-                                          [else (make-enemy
-                                                 (direction (enemy-x (first loo)) 2)
-                                                 (enemy-y (first loo))
-                                                 (enemy-image (first loo))
-                                                 (enemy-vel (first loo)))])]
+                  [(enemy? (first loo)) (make-enemy
+                                         (direction (enemy-x (first loo)) 2)
+                                         (enemy-y (first loo))
+                                         (enemy-image (first loo))
+                                         (enemy-vel (first loo)))]
                   [else loo])
                 (moveHelper char (rest loo) direction))]))
 
 
-; check to see if the enemy has entered the world
-(define (checkEnemyX enemy)
-  (< (enemy-x enemy) charX))
-
-; if the enemy is on the screen and has not missed, attack the character
-(define (enemyAttack enemy)
-  (make-enemy (- (enemy-x enemy) 2)
-              (+ (enemy-y enemy) (enemy-vel enemy))
-              (enemy-image enemy)
-              (enemy-vel enemy)))
-
-
-
-; overlay prize image with points
+; Prize -> Image
+; overlay prize image with point value text
 (define (showPoints prize)
   (overlay (text (number->string (prize-points prize)) 12 "black")
            (prize-image prize)))
 
-; List-of-Objects, Image -> Image --- places all the objects in a list on the world background
+
+; List-of-Objects, Image -> Image
+; places all the objects in a list on the world background
 (define (renderAllObjects obj image)
   (cond
     [(empty? obj) image]
@@ -710,7 +712,7 @@
                                        (prize-x (first obj)) (prize-y (first obj))
                                        (renderAllObjects (rest obj) image))]))
 
-;(renderAllObjects looe mainB)
+
 ; Gamestate -> Image
 ; takes a character and renders instructed images
 ; The imageSelector determines which image to render
@@ -756,13 +758,15 @@
                image))
 
 
-; Gamestate -> Image --- Renders the entire game-state:
+; Gamestate -> Image 
+; Renders the entire game-state
 (define (masterRender gs)
   (if (ugs-menu gs) ;Don't render the character in menu-state
       (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))
       (scoreRender (ugs-score gs) (characterRender gs))))
 
 
+; Gamestate -> Gamestate
 ; rotate the character image 90 degrees for last world scene
 (define (renderDeadChar gs)
   (place-image
@@ -771,12 +775,14 @@
    (if (> (character-y (ugs-character gs)) bottom) 675 (+ (/ (image-height (list-ref (character-image (ugs-character gs)) (character-imageSelector (ugs-character gs)))) 2) (character-y (ugs-character gs))))
    (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
 
+; Gamestate -> Boolean
 ; check to see if there's a death collision between lethal object and character
 (define (endWorld gs)
   (deathCollision? gs))
 
+
 ; List-of-Objects, Character -> Boolean
-; go through list of objects and check if there is a collision with a lethal object
+; go through list of objects and check if there is a collision with a lethal object or an enemy
 (define (deathCollision? gs)
   (cond
     [(empty? (ugs-objects gs)) #false]
@@ -803,21 +809,12 @@
      (or
       (and
        (and
-        ; Bottom of char is lower than the top of ob
         (>=
-         (+
-          (character-y futureCharY)
-          (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (+ (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
          (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
-
-        ; Top of char is higher than bottem of ob
         (<=
-         (-
-          (character-y futureCharY)
-          (/ (image-height (first (character-image (ugs-character gs)))) 2))
-         (+ (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
-        )
-        
+         (-(character-y futureCharY)(/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (+ (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2))))
        (<=
         (abs (- (object-x (first (ugs-objects gs))) charX))
         (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26)))
@@ -832,27 +829,16 @@
         (ugs-keyboard gs)
         (ugs-tockCounter gs)
         (ugs-score gs)) futureCharY))]
-      ;                         hehehe graphical hard-coding with that 26 to eliminate a falling bug
     [(enemy? (first (ugs-objects gs)))
      (or
       (and
        (and
-
-        ; Bottom of char is lower than the top of ob
         (>=
-         (+
-          (character-y futureCharY)
-          (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (+ (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
          (- (enemy-y (first (ugs-objects gs))) (/ (image-height (enemy-image (first (ugs-objects gs)))) 2)))
-
-        ; Top of char is higher than bottem of ob
         (<=
-         (-
-          (character-y futureCharY)
-          (/ (image-height (first (character-image (ugs-character gs)))) 2))
-         (+ (enemy-y (first (ugs-objects gs))) (/ (image-height (enemy-image (first (ugs-objects gs)))) 2)))
-        )
-        
+         (- (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
+         (+ (enemy-y (first (ugs-objects gs))) (/ (image-height (enemy-image (first (ugs-objects gs)))) 2))))
        (<=
         (abs (- (enemy-x (first (ugs-objects gs))) charX))
         (+ (/ (image-width (enemy-image (first (ugs-objects gs)))) 2) 26)))

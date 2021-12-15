@@ -23,6 +23,7 @@
 (define-struct enemy [x y image vel])
 (define-struct keyboard [space left right escape])
 
+
 ; Constants:
 ;(define BACKGROUND (empty-scene 200 200))
 (define charY 200)
@@ -31,6 +32,7 @@
 (define mainB (rectangle 1400 700 "solid" "white"))
 (define iceB (bitmap "iceWorld.png"))
 (define lavaB (bitmap "lavaWorld.png"))
+(define volcanoColor (make-color 18 18 18))
 (define highlightImage (square 120 "solid" "black"))
 (define stevenImages (list (bitmap "Steven0.png")
                            (bitmap "Steven1.png")
@@ -40,13 +42,10 @@
                            (bitmap "Steven5.png")
                            (bitmap "Steven6.png")
                            (bitmap "Steven7.png")))
-(define backwardSteven (for/list([im stevenImages])
-                                  (flip-horizontal im)))
-(define steven (make-character charY 0 2 0 stevenImages
-                               0 #false))
+(define backwardSteven (for/list([im stevenImages]) (flip-horizontal im)))
+(define steven (make-character charY 0 2 0 stevenImages 0 #false))
 (define animationSpeed 3) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
-
 (define bottom (- (image-height mainB) (/ (image-height (list-ref stevenImages 1)) 2)))
 
 
@@ -92,17 +91,14 @@
                              counter
                              score))
 ; Bergen's world
-; World 2.1 is where I'm doing my testing -JB
-
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
-                            (make-object 600 700 (rectangle 1000 30 "solid" "black") #f)
-                            (make-object 1000 200 (square 100 "solid" "black") #f)
-                            (make-object 1600 550 (rectangle 1000 50 "solid" "black") #f)
-                            (make-object 2600 400 (rectangle 800 200 "solid" "black") #f)
-                            (make-object 3000 6500 (square 100 "solid" "black") #f)
-                            (make-object 1500 250 (square 100 "solid" "red") #t)
-                            (make-enemy 2500 0 (circle 50 "solid" "red") 10)
+                            (make-object 600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
+                            
+                            (make-object 1600 600 (rectangle 800 400 "solid" volcanoColor) #f)
+                            (make-object 2600 400 (rectangle 800 200 "solid" volcanoColor) #f)
+                            (make-object 3000 6500 (square 100 "solid" volcanoColor) #f)
+                            
                             ) clearBoard counter score))
 (define world2.2 (make-ugs #f 2 steven 2
                            (list

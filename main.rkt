@@ -98,7 +98,7 @@
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
                             (make-object 600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
-                            
+                            (make-object 1150 675 (rectangle 100 100 "solid" "red") #t)
                             (make-object 1600 600 (rectangle 800 400 "solid" volcanoColor) #f)
                             (make-object 2600 400 (rectangle 800 200 "solid" volcanoColor) #f)
                             (make-object 3000 6500 (square 100 "solid" volcanoColor) #f)
@@ -556,7 +556,7 @@
    (gravityHappens (ugs-character gs) (ugs-tockCounter gs))))
 
 ; Gamestate -> Gamestate
-; This function loops through the list of objects (for now just one), and returns a modified gs if there's collision
+; This function loops through the list of objects and returns a modified gs if there's collision
 (define (char_object_collision? gs futureCharY)
   (cond
     [(empty? (ugs-objects gs)) #f]
@@ -787,7 +787,12 @@
   (cond
     [(empty? (ugs-objects gs)) #false]
     [(> (character-y (ugs-character gs)) (image-height mainB)) #true]
-    [(or (enemy? (first (ugs-objects gs))) (and (object? (first (ugs-objects gs))) (object-lethal (first (ugs-objects gs))))) (collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))]
+    [(or
+      (enemy? (first (ugs-objects gs)))
+      (and
+       (object? (first (ugs-objects gs)))
+       (object-lethal (first (ugs-objects gs)))))
+     (collision? gs (gravityHappens (ugs-character gs) (ugs-tockCounter gs)))]
     [else (deathCollision?
            (make-ugs
             (ugs-menu gs)
@@ -803,22 +808,24 @@
 ; Object, Character -> Boolean
 ; check to see if the character collides with an object
 (define (collision? gs futureCharY)
-   (cond
+  (cond
     [(empty? (ugs-objects gs)) #f]
     [(object? (first (ugs-objects gs)))
      (or
       (and
+       (object-lethal (first (ugs-objects gs)))
        (and
-        (>=
-         (+ (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
-         (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+        (and
+         (>=
+          (+ (character-y futureCharY) (/ (image-height (first (character-image (ugs-character gs)))) 2))
+          (- (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2)))
+         (<=
+          (-(character-y futureCharY)(/ (image-height (first (character-image (ugs-character gs)))) 2))
+          (+ (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2))))
         (<=
-         (-(character-y futureCharY)(/ (image-height (first (character-image (ugs-character gs)))) 2))
-         (+ (object-y (first (ugs-objects gs))) (/ (image-height (object-image (first (ugs-objects gs)))) 2))))
-       (<=
-        (abs (- (object-x (first (ugs-objects gs))) charX))
-        (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26)))
-       ; Recursion
+         (abs (- (object-x (first (ugs-objects gs))) charX))
+         (+ (/ (image-width (object-image (first (ugs-objects gs)))) 2) 26))))
+      ; Recursion
       (collision?
        (make-ugs
         (ugs-menu gs)

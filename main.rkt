@@ -42,7 +42,7 @@
                            (bitmap/file "resources/Steven5.png")
                            (bitmap/file "resources/Steven6.png")
                            (bitmap/file "resources/Steven7.png")))
-(define backwardSteven (for/list([im stevenImages]) (flip-horizontal im)))
+(define backwardSteven (for/list([im stevenImages]) (flip-horizontal im))) ; These images are used for the reverse-animation
 (define steven (make-character charY 0 0 0 stevenImages 0 #false))
 (define animationSpeed 3) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
@@ -94,26 +94,46 @@
                              clearBoard
                              counter
                              score))
-; Bergen's world 
+; Bergen's world
+; All objects with a lethal-value of #t are lava pools
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
                             (make-object 600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
                             (make-object 1150 675 (rectangle 100 100 "solid" "red") #t)
                             (make-object 1600 600 (rectangle 800 400 "solid" volcanoColor) #f)
                             (make-object 1800 300 (rectangle 400 200 "solid" volcanoColor) #f)
-                            (make-object 2200 300 (rectangle 400 200 "solid" volcanoColor) #f)
-                            (make-object 2600 400 (rectangle 800 200 "solid" volcanoColor) #f)
-                            (make-object 3000 6500 (square 100 "solid" volcanoColor) #f)
-                            
+                            (make-object 2500 300 (rectangle 400 200 "solid" volcanoColor) #f)
+                            (make-object 2500 600 (rectangle 1000 600 "solid" "red") #t)
+                            (make-object 3500 580 (rectangle 1000 600 "solid" volcanoColor) #f)
                             ) clearBoard counter score))
 (define world2.2 (make-ugs #f 2 steven 2
-                           (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter score))
+                           (list                            
+                            (make-object 600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
+                            (make-object 800 280 (square 200 "solid" volcanoColor) #f)
+                            (make-object 1045 600 (rectangle 10 400 "solid" volcanoColor) #f)
+                            (make-object 1100 500 (rectangle 100 800 "solid" volcanoColor) #f)
+                            (make-object 1600 700 (rectangle 1000 100 "solid" "red") #t)
+                            (make-object 1400 650 (square 50 "solid" volcanoColor) #f)
+                            (make-object 1600 650 (square 50 "solid" volcanoColor) #f)
+                            (make-object 1800 650 (square 50 "solid" volcanoColor) #f)
+                            (make-object 2600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
+                            (make-object 3400 560 (rectangle 600 400 "solid" volcanoColor) #f)
+                            (make-object 4200 700 (rectangle 1000 100 "solid" "red") #t)
+                           ) clearBoard counter score))
 (define world2.3 (make-ugs #f 2 steven 3
                            (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter score))
+                            (make-object 600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
+                            (make-object 1300 550 (rectangle 500 300 "solid" volcanoColor) #f)
+                            (make-object 2000 700 (rectangle 1000 100 "solid" "red") #t)
+                            (make-object 2200 300 (rectangle 800 40 "solid" volcanoColor) #f)
+                            (make-object 2600 250 (rectangle 50 140 "solid" volcanoColor) #f)
+                            (make-object 3000 300 (rectangle 800 40 "solid" volcanoColor) #f)
+                            (make-object 3000 275 (rectangle 800 50 "solid" "red") #t)
+                            (make-object 3400 250 (rectangle 50 140 "solid" volcanoColor) #f)
+                            (make-object 2450 650 (rectangle 50 200 "solid" volcanoColor) #f)
+                            (make-object 2950 675 (rectangle 1000 100 "solid" "red") #t)
+                            (make-object 3950 650 (rectangle 1000 100 "solid" volcanoColor) #f)
+                            ) clearBoard counter score))
 (define world2Menu (make-ugs #t 2 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
@@ -291,21 +311,26 @@
      (if (and (= (ugs-world (list-ref levelUpList i)) currentWorld) (= (ugs-level (list-ref levelUpList i)) currentLevel)) (list-ref levelUpList i) #f)))))
 
 
-; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
+; Character, Gamestate, Keyevent -> Gamestate
+; Accepts a keystroke (Character) and either calls a exclusive function or simply updates the keyboard
 (define (onKey gs key)
   (cond
     [(key=? key "escape") (escapeKey gs)]
     [(key=? key " ") (jump gs)]
     [else (updateKeyboard gs key #t)]))
 
-; Character Gamestate Keyevent -> Gamestate --- accepts a keystroke (Character) and updates the keyboard
+; Character, Gamestate, Keyevent -> Gamestate
+; Accepts a release of a key (Character) and updates the keyboard
 (define (onRelease gs key)
   (updateKeyboard gs key #f))
 
-; Character Gamestate Keyevent Boolean -> Gamestate --- updates the keyboard according to onKey and onRelease
+; Gamestate, Keyevent, Boolean -> Gamestate
+; Updates the keyboard according to onKey and onRelease
 (define (updateKeyboard gs key value)
   (make-ugs (ugs-menu gs)
             (ugs-world gs)
+
+            ; Update the character with the new direction of movement
             (make-character
              (character-y (ugs-character gs))
              (character-yVel (ugs-character gs))
@@ -317,19 +342,23 @@
                [(key=? key "right") "right"]
                [(key=? key "left") "left"]
                [else (character-moveDirection (ugs-character gs))]))
+            
             (ugs-level gs)
             (ugs-objects gs)
+
+            ; Make a new keyboard, using the existing values for each key unless that key called this function
             (make-keyboard
              (if (key=? key " ") value (keyboard-space (ugs-keyboard gs)))
              (if (key=? key "left") value (keyboard-left (ugs-keyboard gs)))
              (if (key=? key "right") value (keyboard-right (ugs-keyboard gs)))
              (if (key=? key "escape") value (keyboard-escape (ugs-keyboard gs))))
+            
             (ugs-tockCounter gs)
             (ugs-score gs)))
 
 
-; Gamestate -> Gamestate --- Exits the world if menu-state == #f, backs up a level in menu-state,
-;                             exits the game if were're in the mainMenu
+; Gamestate -> Gamestate
+; Exits the world if menu-state == #f, backs up a level in menu-state, exits the game if were're in the mainMenu
 (define (escapeKey gs)
   (if (ugs-menu gs)
       (if (> (ugs-world gs) 0)
@@ -340,8 +369,8 @@
         [(equal? (ugs-world gs) 2) world2Menu]
         [(equal? (ugs-world gs) 3) world3Menu])))
 
-; Onkey-Event Gamestate -> Gamestate --- accepts a mouse-event, the x and y of the event, and a gamestate
-;  it only modifies the game-state if we're in menu-state
+; Onkey-Event, Gamestate -> Gamestate
+; Accepts a mouse-event, the x and y of the event, and a gamestate. It only happens if we're in menu-state
 (define (onMouse gs x y event)
   (if (ugs-menu gs) ; Check for menu-state
       (if (mouse=? "button-down" event)
@@ -371,7 +400,8 @@
             counter
             score))
 
-; X Y Gamestate -> Boolean --- This checks if a x and y collides with a menuButton
+; X Y Gamestate -> Boolean
+; This checks if a x and y collides with a menuButton
 (define (overButton? x y b)
   (and 
    (<  (abs (- x (menuButton-x b))) (/ (image-width (menuButton-image b)) 2))
@@ -386,12 +416,12 @@
 ;(define-struct ugs [menu world character level objects keyboard])
 ; Gamestate -> Gamestate --- this function adds the jumpStrength to the y-value of the character
 (define (jump gs)
-  (if (> (character-jumps (ugs-character gs)) 0)
+  (if (> (character-jumps (ugs-character gs)) 0) ; Check if we have remaining hops
       (make-ugs (ugs-menu gs) (ugs-world gs)
                 (make-character
                  (character-y (ugs-character gs))
-                 (- jumpStrength)
-                 (- (character-jumps (ugs-character gs)) 1)
+                 (- jumpStrength) ; Change the yVel to maximum negativity
+                 (- (character-jumps (ugs-character gs)) 1) ; Subtract a hop from Steven
                  (character-temp (ugs-character gs))
                  (character-image (ugs-character gs))
                  (character-imageSelector (ugs-character gs))
@@ -409,14 +439,17 @@
 ; Updates and returns the imageSelector of the input dude to determine which image will be rendered for animation
 (define (animateCharacter dude cntr)
      (modulo (if (= 1 (modulo cntr animationSpeed)) (+ 1 (character-imageSelector dude)) (character-imageSelector dude)) (length (character-image dude))))
- ;POTENTIAL FIX FOR FAST MOVEMENT 
 
-; Character -> Character --- effects gravity on the world
-; CURRENTLY, THIS IS FUNCTIONING AS THE MASTER CHARACTER TOCK...
+; Character -> Character
+; Effects gravity on Steven by returning a new character with an updated y-position and yVel
 (define (gravityHappens char cntr)
   (make-character
+
+   ; Add the yVel to the y-posn to return Steven's new y-posn
    (+ (character-y char) (character-yVel char))
-   (if (<= (character-yVel char) maxFall) (+ (character-yVel char) gravity) (character-yVel char))
+
+   ; Only increase the rate of descent if we are shy of terminal velocity
+   (if (<= (character-yVel char) maxFall) (+ (character-yVel char) gravity) (character-yVel char)) 
    (character-jumps char)
    (character-temp char)
    (character-image char)
@@ -426,6 +459,8 @@
 
 ;-----------------MASTER TOCKS------------------
 
+; Gamestate -> Gamestate
+; This function is called on every tick of Big-Bang, and calls all the other important functions
 (define (tock gs)
   (cond
     [(ugs-menu gs) gs] ;Don't move anything if we're in the menu
@@ -509,7 +544,8 @@
       )) 
 
 
-; I moved everything into a secondary function so that we can add parameters as needed
+; Gamestate -> Gamestate
+; Returns the next game-state, with all the collision rules applied
 (define (returnNextWorld gs)
   (make-ugs (ugs-menu gs)
             (ugs-world gs)
@@ -542,7 +578,7 @@
                  (enemy-vel (first loo))) (enemyAttack (rest loo)))]))
 
 
-
+; Gamestate -> make-character
 ; This function returns the character with either a change in y-position or no change
 (define (affect_char gs)
   (if
@@ -558,7 +594,8 @@
    (gravityHappens (ugs-character gs) (ugs-tockCounter gs))))
 
 ; Gamestate -> Gamestate
-; This function loops through the list of objects and returns a modified gs if there's collision
+; This function loops through the list of objects and returns a Boolean: #t if there is collision between
+;  Steven and any object in the world
 (define (char_object_collision? gs futureCharY)
   (cond
     [(empty? (ugs-objects gs)) #f]
@@ -598,13 +635,14 @@
         (ugs-tockCounter gs)
         (ugs-score gs)) futureCharY))]))
 
+; Gamestate, List, make-character -> List
 ; This function returns a list of objects that is either moved or not, depending on collision
 (define (affectLoo gs movedLoo futureChar)
   (if (objectMoveCollision? gs (filter object? movedLoo) futureChar)
       (ugs-objects gs)
       movedLoo))
 
-; what does this function do?
+; Gamestate, 
 (define (objectMoveCollision? gs movedLoo futureChar)
   (cond
     [(empty? movedLoo) #f]
@@ -746,9 +784,9 @@
        (< (character-jumps (ugs-character gs)) 2))
       (list-ref backwardSteven 2)]
      [else (list-ref (character-image (ugs-character gs)) 0)])
-               charX
-               (character-y (ugs-character gs))
-               (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
+   charX
+   (character-y (ugs-character gs))
+   (renderAllObjects (ugs-objects gs) (worldDeterminer (ugs-world gs)))))
 
 ; World -> Image
 ; Takes the current world indicator and returns the appropriate image

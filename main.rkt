@@ -43,7 +43,7 @@
                            (bitmap/file "resources/Steven6.png")
                            (bitmap/file "resources/Steven7.png")))
 (define backwardSteven (for/list([im stevenImages]) (flip-horizontal im)))
-(define steven (make-character charY 0 2 0 stevenImages 0 #false))
+(define steven (make-character charY 0 0 0 stevenImages 0 #false))
 (define animationSpeed 3) ; Bigger numbers mean slower animation speed
 (define clearBoard (make-keyboard #f #f #f #f))
 (define bottom (- (image-height mainB) (/ (image-height (list-ref stevenImages 1)) 2)))
@@ -94,12 +94,14 @@
                              clearBoard
                              counter
                              score))
-; Bergen's world
+; Bergen's world 
 (define world2.1 (make-ugs #f 2 steven 1
                            (list
                             (make-object 600 650 (rectangle 1000 100 "solid" volcanoColor) #f)
                             (make-object 1150 675 (rectangle 100 100 "solid" "red") #t)
                             (make-object 1600 600 (rectangle 800 400 "solid" volcanoColor) #f)
+                            (make-object 1800 300 (rectangle 400 200 "solid" volcanoColor) #f)
+                            (make-object 2200 300 (rectangle 400 200 "solid" volcanoColor) #f)
                             (make-object 2600 400 (rectangle 800 200 "solid" volcanoColor) #f)
                             (make-object 3000 6500 (square 100 "solid" volcanoColor) #f)
                             
@@ -719,6 +721,14 @@
 (define (characterRender gs)
   (place-image
    (cond
+     [(and
+       (= (character-jumps (ugs-character gs)) 2)
+       (and
+        (not (keyboard-right (ugs-keyboard gs)))
+        (not (keyboard-left (ugs-keyboard gs)))))
+      (if (equal? (character-moveDirection (ugs-character gs)) "right")
+          (list-ref (character-image (ugs-character gs)) 0)
+          (list-ref backwardSteven 0))]
      [(and
        (equal? (character-moveDirection (ugs-character gs)) "right")
        (= (character-jumps (ugs-character gs)) 2))

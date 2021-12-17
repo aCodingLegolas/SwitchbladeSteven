@@ -29,10 +29,12 @@
 (define charY 200)
 (define charX 400)
 (define endLevelX -2700)
-(define mainB (rectangle 1400 700 "solid" "white"))
+(define mainB (bitmap/file "resources/mainB.png"))
 (define iceB (bitmap/file "resources/iceWorld.png"))
 (define lavaB (bitmap/file "resources/lavaWorld.png"))
+(define toxicB (bitmap/file "resources/toxicWorld.png"))
 (define volcanoColor (make-color 18 18 18))
+(define pipeColor (make-color 20 30 40))
 (define highlightImage (square 120 "solid" "black"))
 (define stevenImages (list (bitmap/file "resources/Steven0.png")
                            (bitmap/file "resources/Steven1.png")
@@ -64,31 +66,61 @@
 ; Fritz's world
 (define world1.1 (make-ugs #f 1 steven 1
                            (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter score))
+                            (make-object 600 450 (rectangle 600 20 "solid" pipeColor) #f)
+                            (make-object 1925 675 (rectangle 3850 50 "solid" "green") #t)
+                            (make-object 1300 650 (rectangle 400 20 "solid" pipeColor) #f)
+                            (make-object 1900 550 (rectangle 400 20 "solid" pipeColor) #f)
+                            (make-object 2800 650 (rectangle 1000 20 "solid" pipeColor) #f)
+                            (make-object 3600 580 (rectangle 500 20 "solid" pipeColor) #f)
+                            )
+                            clearBoard counter score))
+
 (define world1.2 (make-ugs #f 1 steven 2
                            (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter score))
+                            (make-object 600 600 (rectangle 600 20 "solid" pipeColor) #f)
+                            (make-object 1750 675 (rectangle 3500 50 "solid" "green") #t)
+                            (make-object 1000 550 (rectangle 50 20 "solid" pipeColor) #f)
+                            (make-object 1200 500 (rectangle 50 20 "solid" pipeColor) #f)
+                            (make-object 1700 450 (rectangle 400 20 "solid" pipeColor) #f)
+                            (make-object 2700 650 (rectangle 1000 20 "solid" pipeColor) #f)
+                            (make-object 3190 660 (rectangle 20 450 "solid" pipeColor) #f)
+                            (make-object 3500 660 (rectangle 600 400 "solid" "green") #t)
+                            (make-object 3500 440 (rectangle 50 20 "solid" pipeColor) #f)
+                            (make-object 3810 660 (rectangle 20 450 "solid" pipeColor) #f)
+                            (make-object 4320 580 (rectangle 1000 20 "solid" pipeColor) #f)
+                            ) clearBoard counter score))
+
 (define world1.3 (make-ugs #f 1 steven 3
                            (list
-                            (make-object 300 400 (rectangle 100 30 "solid" "black") #f)
-                            (make-object 500 500 (rectangle 600 5 "solid" "green") #f)) clearBoard counter score))
+                            (make-object 600 400 (rectangle 600 20 "solid" pipeColor) #f)
+                            (make-object 1925 675 (rectangle 3850 50 "solid" "green") #t)
+                            (make-object 1300 650 (rectangle 400 20 "solid" pipeColor) #f)
+                            (make-object 1700 650 (rectangle 400 20 "solid" pipeColor) #f)
+                            (make-object 1600 590 (rectangle 200 100 "solid" pipeColor) #f)
+                            (make-object 1800 540 (rectangle 200 200 "solid" pipeColor) #f)
+                            (make-object 2050 650 (rectangle 300 400 "solid" "green") #t)
+                            (make-object 2300 450 (rectangle 200 20 "solid" pipeColor) #f)
+                            (make-object 2550 650 (rectangle 1000 400 "solid" "green") #t)
+                            (make-object 3060 530 (rectangle 20 240 "solid" pipeColor) #f)
+                            (make-object 2900 400 (rectangle 400 20 "solid" pipeColor) #f)
+                            (make-object 3250 400 (rectangle 400 20 "solid" pipeColor) #f)
+                            ) clearBoard counter score))
+
 (define world1Menu (make-ugs #t 1 steven 0
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "red")
+                                               (bitmap/file "resources/levelOne.png")
                                                #f
                                                world1.1)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "red")
+                                               (bitmap/file "resources/levelTwo.png")
                                                #f
                                                world1.2)
                               (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "red")
+                                               (bitmap/file "resources/levelThree.png")
                                                #f
                                                world1.3))
                              clearBoard
@@ -138,17 +170,17 @@
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "blue")
+                                               (bitmap/file "resources/levelOne.png")
                                                #f
                                                world2.1)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "blue")
+                                               (bitmap/file "resources/levelTwo.png")
                                                #f
                                                world2.2)
                               (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "blue")
+                                               (bitmap/file "resources/levelThree.png")
                                                #f
                                                world2.3))
                              clearBoard
@@ -239,17 +271,17 @@
                              (list
                               (make-menuButton (* (image-width mainB) 1/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "green")
+                                               (bitmap/file "resources/levelOne.png")
                                                #f
                                                world3.1)
                               (make-menuButton (* (image-width mainB) 1/2)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "green")
+                                               (bitmap/file "resources/levelTwo.png")
                                                #f
                                                world3.2)
                               (make-menuButton (* (image-width mainB) 3/4)
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "green")
+                                               (bitmap/file "resources/levelThree.png")
                                                #f
                                                world3.3))
                              clearBoard
@@ -258,19 +290,19 @@
 ; Main Menu
 (define mainMenu (make-ugs #t 0 steven 0
                              (list
-                              (make-menuButton (* (image-width mainB) 1/4)
+                              (make-menuButton 233
                                                (/ (image-height mainB) 2)
-                                               (bitmap/file "resources/iceIcon.png")
+                                               (bitmap/file "resources/toxicIcon.png")
                                                #f
                                                world1Menu)
-                              (make-menuButton (* (image-width mainB) 1/2)
+                              (make-menuButton 699
                                                (/ (image-height mainB) 2)
                                                (bitmap/file "resources/lavaIcon.png")
                                                #f
                                                world2Menu)
-                              (make-menuButton (* (image-width mainB) 3/4)
+                              (make-menuButton 1167
                                                (/ (image-height mainB) 2)
-                                               (square 100 "solid" "green")
+                                               (bitmap/file "resources/iceIcon.png")
                                                #f
                                                world3Menu))
                              clearBoard
@@ -793,9 +825,9 @@
 (define (worldDeterminer wrld)
   (cond
     [(= wrld 0) mainB]
-    [(= wrld 1) iceB]
+    [(= wrld 1) toxicB]
     [(= wrld 2) lavaB]
-    [(= wrld 3) mainB])) ;wrld 3 should be something else once an image is drawn for this world
+    [(= wrld 3) iceB])) ;wrld 3 should be something else once an image is drawn for this world
 
 
 ; Gamestate -> Image
